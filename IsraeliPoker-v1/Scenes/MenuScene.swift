@@ -74,4 +74,7 @@ class MenuScene: SKScene {
             }
         }
     }
+    func authenticatePlayer() {
+        
+    }
 }
