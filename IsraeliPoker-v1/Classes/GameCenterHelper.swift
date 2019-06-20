@@ -35,9 +35,15 @@ final class GameCenterHelper: NSObject {
     
     var viewController: UIViewController?
     
+    static var isAuthenticated: Bool {
+        return GKLocalPlayer.local.isAuthenticated
+    }
+    
     override init() {
         super.init()
         GKLocalPlayer.local.authenticateHandler = { gcAuthVC, error in
+            NotificationCenter.default.post(name: .authenticationChanged, object: GKLocalPlayer.local.isAuthenticated)
+
             if GKLocalPlayer.local.isAuthenticated {
                 print("Authenticated to Game Center!")
             } else if let vc = gcAuthVC {
@@ -49,6 +55,11 @@ final class GameCenterHelper: NSObject {
             }
         }
     }
-    
-    
 }
+
+extension Notification.Name {
+    static let presentGame = Notification.Name(rawValue: "presentGame")
+    static let authenticationChanged = Notification.Name(rawValue: "authenticationChanged")
+}
+
+

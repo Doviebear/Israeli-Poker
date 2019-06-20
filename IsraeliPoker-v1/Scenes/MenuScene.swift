@@ -11,11 +11,16 @@ import SpriteKit
 class MenuScene: SKScene {
     var localPlayButton: SKSpriteNode!
     var onlinePlayButton: SKSpriteNode!
+    var localButtonEnabled = true
+    var onlineButtonEnabled = GameCenterHelper.isAuthenticated
     
     
     override func didMove(to view: SKView) {
         localPlayButton = (self.childNode(withName: "localPlayButton") as! SKSpriteNode)
         localPlayButton.texture = SKTexture(imageNamed: "blue_button04")
+        
+        
+       
        
         
         
@@ -29,6 +34,7 @@ class MenuScene: SKScene {
         onlinePlayButton = (self.childNode(withName: "onlinePlayButton") as! SKSpriteNode)
         onlinePlayButton.texture = SKTexture(imageNamed: "blue_button04")
         
+        
         let onlinePlayButtonLabel = SKLabelNode(fontNamed: "kenvector future")
         onlinePlayButtonLabel.text = "Play Online"
         onlinePlayButtonLabel.position = CGPoint(x: 0, y: -8)
@@ -36,7 +42,7 @@ class MenuScene: SKScene {
         onlinePlayButtonLabel.fontSize = 24
         onlinePlayButton.addChild(onlinePlayButtonLabel)
         
-        
+        NotificationCenter.default.addObserver(self, selector: #selector(authenticationChanged(_:)), name: .authenticationChanged, object: nil)
         
     }
     
@@ -47,10 +53,10 @@ class MenuScene: SKScene {
             let nodesArray = self.nodes(at: location)
             
             for node in nodesArray {
-                if (node.name == "localPlayButton") {
+                if (node.name == "localPlayButton" && localButtonEnabled == true) {
                     localPlayButton.texture = SKTexture(imageNamed: "blue_button05")
                     return
-                } else if (node.name == "onlinePlayButton") {
+                } else if (node.name == "onlinePlayButton" && onlineButtonEnabled == true) {
                     onlinePlayButton.texture = SKTexture(imageNamed: "blue_button05")
                     return
                 }
@@ -65,10 +71,15 @@ class MenuScene: SKScene {
             let nodesArray = self.nodes(at: location)
             
             for node in nodesArray {
-                if (node.name == "localPlayButton") {
+                if (node.name == "localPlayButton" && localButtonEnabled == true) {
+                    localPlayButton.texture = SKTexture(imageNamed: "blue_button04")
                     let transition = SKTransition.flipVertical(withDuration: 0.5)
                     let gameScene = GameScene(size: self.size)
                     self.view?.presentScene(gameScene, transition: transition)
+                    return
+                } else if (node.name == "onlinePlayButton" && onlineButtonEnabled == true) {
+                    onlinePlayButton.texture = SKTexture(imageNamed: "blue_button04")
+                    print("Online Button Pressed")
                     return
                 }
             }
@@ -76,5 +87,8 @@ class MenuScene: SKScene {
     }
     func authenticatePlayer() {
         
+    }
+    @objc func authenticationChanged(_ notification: Notification) {
+        onlineButtonEnabled = notification.object as? Bool ?? false
     }
 }
