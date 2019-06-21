@@ -80,6 +80,7 @@ class MenuScene: SKScene {
                 } else if (node.name == "onlinePlayButton" && onlineButtonEnabled == true) {
                     onlinePlayButton.texture = SKTexture(imageNamed: "blue_button04")
                     print("Online Button Pressed")
+                    GameCenterHelper.helper.createMatchmaker()
                     return
                 }
             }

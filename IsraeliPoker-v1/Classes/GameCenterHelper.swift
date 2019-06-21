@@ -55,6 +55,22 @@ final class GameCenterHelper: NSObject {
             }
         }
     }
+    
+    func createMatchmaker() {
+        guard GKLocalPlayer.local.isAuthenticated else {
+            return
+        }
+        
+        let request = GKMatchRequest()
+        request.minPlayers = 2
+        request.maxPlayers = 2
+        
+        request.inviteMessage = "Hey, lets go play"
+        
+        let vc = GKTurnBasedMatchmakerViewController(matchRequest: request)
+        vc.turnBasedMatchmakerDelegate = self
+        viewController?.present(vc, animated: true)
+    }
 }
 
 extension Notification.Name {
@@ -62,4 +78,11 @@ extension Notification.Name {
     static let authenticationChanged = Notification.Name(rawValue: "authenticationChanged")
 }
 
-
+extension GameCenterHelper: GKTurnBasedMatchmakerViewControllerDelegate{
+    func turnBasedMatchmakerViewControllerWasCancelled(_ viewController: GKTurnBasedMatchmakerViewController) {
+        viewController.dismiss(animated: true)
+    }
+    func turnBasedMatchmakerViewController(_ viewController: GKTurnBasedMatchmakerViewController, didFailWithError error: Error) {
+        print("Matchmaker vc failed with error: \(error.localizedDescription)")
+    }
+}
