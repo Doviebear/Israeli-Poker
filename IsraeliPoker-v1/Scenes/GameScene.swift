@@ -14,9 +14,11 @@ class GameScene: SKScene {
     var model: GameModel
     var cardsInPlay: [Card]!
     var deck: Deck!
+    var roundEnded = false
     var topCardSprite: SKSpriteNode!
     var playerOneScoreNode: SKLabelNode?
     var playerTwoScoreNode: SKLabelNode?
+    var spritesInPlay = [SKNode]()
     var playerOneScore: Int! {
         didSet {
             if let node = playerOneScoreNode {
@@ -40,7 +42,9 @@ class GameScene: SKScene {
         deck = model.deck
         
         for card in cardsInPlay {
-            addChild(card.getCardSprite())
+            let sprite = card.getCardSprite()
+            spritesInPlay.append(sprite)
+            addChild(sprite)
         }
         topCardSprite = model.topCard.getTopCardSprite()
         addChild(topCardSprite)
@@ -48,11 +52,11 @@ class GameScene: SKScene {
         playerOneScore = model.playerOneScore
         playerTwoScore = model.playerTwoScore
         playerOneScoreNode = SKLabelNode(text: "Score: \(playerOneScore!)")
-        playerOneScoreNode?.position = CGPoint(x: 100, y: 750)
+        playerOneScoreNode?.position = CGPoint(x: 100, y: 50)
         addChild(playerOneScoreNode!)
         
         playerTwoScoreNode = SKLabelNode(text: "Score: \(playerTwoScore!)")
-        playerTwoScoreNode?.position = CGPoint(x: 100, y: 50)
+        playerTwoScoreNode?.position = CGPoint(x: 100, y: 750)
         addChild(playerTwoScoreNode!)
         
         backgroundColor = .red
@@ -88,6 +92,11 @@ class GameScene: SKScene {
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if roundEnded {
+            newRound()
+            return
+        }
+        
         let touch = touches.first
         
         if let location = touch?.location(in: self) {
@@ -95,7 +104,9 @@ class GameScene: SKScene {
             let handNum = findHand(at: location)
             if handIsValid(hand: handNum) {
                 model.topCard.addToHand(handNum: handNum, player: model.playerTurn, numInHand: model.roundNum)
-                addChild(model.topCard.getCardSprite())
+                let sprite = model.topCard.getCardSprite()
+                spritesInPlay.append(sprite)
+                addChild(sprite)
                 model.CardsInPlay.append(model.topCard)
                 nextTurn()
             } else {
@@ -143,7 +154,7 @@ class GameScene: SKScene {
     func roundEnd() {
         // disable interaction with the screen
         
-        
+        roundEnded = true
         var results = [Int]()
         for i in 1...5 {
             var hand1 = [Card]()
@@ -161,11 +172,13 @@ class GameScene: SKScene {
             if result == 1 {
                 // if player1 won the hand
                 model.playerOneScore += 1
+                playerOneScore += 1
                 print("P1 Won")
             } else if result == 2 {
                 // if player2 won the hand
                 print("P2 Won")
                 model.playerTwoScore += 1
+                playerTwoScore += 1
             } else if result == 3 {
                 // if they tied
             } else {
@@ -173,6 +186,29 @@ class GameScene: SKScene {
             }
         }
     }
+    
+    func newRound() {
+        roundEnded = false
+        model.deck.resetDeck()
+        newTopCard()
+        model.roundNum = 2
+        model.turnNum = 0
+        model.CardsInPlay.removeAll()
+        for sprite in spritesInPlay {
+            sprite.removeFromParent()
+        }
+        for player in 1...2 {
+            for hand in 1...5 {
+                let card = model.deck.drawCard()
+                card.addToHand(handNum: hand, player: player, numInHand: 1)
+                model.CardsInPlay.append(card)
+                let sprite = card.getCardSprite()
+                spritesInPlay.append(sprite)
+                addChild(sprite)
+            }
+        }
+    }
+    
     func handIsValid(hand: Int) -> Bool {
         let playerTurn = model.playerTurn
         let cardsInPlay = model.CardsInPlay
