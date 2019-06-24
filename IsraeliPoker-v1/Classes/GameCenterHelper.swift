@@ -39,13 +39,15 @@ final class GameCenterHelper: NSObject {
         return GKLocalPlayer.local.isAuthenticated
     }
     
+    var currentMatchmakerVC: GKTurnBasedMatchmakerViewController?
+    
     override init() {
         super.init()
         GKLocalPlayer.local.authenticateHandler = { gcAuthVC, error in
             NotificationCenter.default.post(name: .authenticationChanged, object: GKLocalPlayer.local.isAuthenticated)
 
             if GKLocalPlayer.local.isAuthenticated {
-                print("Authenticated to Game Center!")
+                GKLocalPlayer.local.register(self)
             } else if let vc = gcAuthVC {
                 self.viewController?.present(vc, animated: true)
             }
@@ -69,6 +71,7 @@ final class GameCenterHelper: NSObject {
         
         let vc = GKTurnBasedMatchmakerViewController(matchRequest: request)
         vc.turnBasedMatchmakerDelegate = self
+        currentMatchmakerVC = vc
         viewController?.present(vc, animated: true)
     }
 }
@@ -86,3 +89,34 @@ extension GameCenterHelper: GKTurnBasedMatchmakerViewControllerDelegate{
         print("Matchmaker vc failed with error: \(error.localizedDescription)")
     }
 }
+
+extension GameCenterHelper: GKLocalPlayerListener {
+    func player(_ player: GKPlayer, wantsToQuitMatch match: GKTurnBasedMatch) {
+        var otherParticipant: GKTurnBasedParticipant!
+        let participants = match.participants
+        for participant in participants {
+            if participant != match.currentParticipant {
+                  otherParticipant = participant
+            }
+        }
+        
+        match.currentParticipant?.matchOutcome = .lost
+        otherParticipant.matchOutcome = .won
+        match.endMatchInTurn(withMatch: match.matchData ?? Data())
+        
+    }
+    func player(_ player: GKPlayer, receivedTurnEventFor match: GKTurnBasedMatch, didBecomeActive: Bool) {
+        if let vc = currentMatchmakerVC {
+            currentMatchmakerVC = nil
+            vc.dismiss(animated: true)
+        }
+        
+        guard didBecomeActive else { return }
+        
+        
+        
+        NotificationCenter.default.post(name: .presentGame , object: match)
+    }
+    
+}
+

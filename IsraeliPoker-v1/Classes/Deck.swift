@@ -9,18 +9,28 @@
 import UIKit
 import SpriteKit
 
-class Deck: SKNode  {
+class Deck: Codable  {
     var Cards = [Card]()
     var suits = ["Spades", "Hearts","Diamonds","Clubs"]
     var cardNames = ["Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten","Jack","Queen","King","Ace"]
     
+    init() {
+        for i in 0...3 {
+            for k in 2...14 {
+                let sprite = "card\(suits[i])\(k)"
+                Cards.append(Card(value: k, cardName: cardNames[k - 2] , suit: suits[i], sprite: sprite))
+                
+            }
+        }
+        Cards.shuffle()
+    }
     
-    func createDeck() {
+    func resetDeck() {
         Cards.removeAll()
         for i in 0...3 {
             for k in 2...14 {
                 let sprite = "card\(suits[i])\(k)"
-                Cards.append(Card(value: k, cardName: cardNames[k - 2] , suit: suits[i], sprite: SKSpriteNode(imageNamed: sprite)))
+                Cards.append(Card(value: k, cardName: cardNames[k - 2] , suit: suits[i], sprite: sprite))
                 
             }
         }

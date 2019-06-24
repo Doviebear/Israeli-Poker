@@ -7,6 +7,7 @@
 //
 
 import SpriteKit
+import GameKit
 
 class MenuScene: SKScene {
     var localPlayButton: SKSpriteNode!
@@ -43,6 +44,7 @@ class MenuScene: SKScene {
         onlinePlayButton.addChild(onlinePlayButtonLabel)
         
         NotificationCenter.default.addObserver(self, selector: #selector(authenticationChanged(_:)), name: .authenticationChanged, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(presentGame(_:)), name: .presentGame, object: nil)
         
     }
     
@@ -72,11 +74,13 @@ class MenuScene: SKScene {
             
             for node in nodesArray {
                 if (node.name == "localPlayButton" && localButtonEnabled == true) {
+                    /*
                     localPlayButton.texture = SKTexture(imageNamed: "blue_button04")
                     let transition = SKTransition.flipVertical(withDuration: 0.5)
                     let gameScene = GameScene(size: self.size)
                     self.view?.presentScene(gameScene, transition: transition)
                     return
+                    */
                 } else if (node.name == "onlinePlayButton" && onlineButtonEnabled == true) {
                     onlinePlayButton.texture = SKTexture(imageNamed: "blue_button04")
                     print("Online Button Pressed")
@@ -91,5 +95,31 @@ class MenuScene: SKScene {
     }
     @objc func authenticationChanged(_ notification: Notification) {
         onlineButtonEnabled = notification.object as? Bool ?? false
+    }
+    
+    @objc func presentGame(_ notification: Notification) {
+        guard let match = notification.object as? GKTurnBasedMatch else {
+            return
+        }
+        
+        loadAndDisplay(match: match)
+    }
+    
+    func loadAndDisplay(match: GKTurnBasedMatch) {
+        match.loadMatchData { data, error in
+            let model: GameModel
+            
+            if let data = data {
+                do {
+                    model = try JSONDecoder().decode(GameModel.self, from: data)
+                } catch {
+                    model = GameModel()
+                }
+            } else {
+                model = GameModel()
+            }
+            self.view?.presentScene(GameScene(model: model), transition: .flipHorizontal(withDuration: 0.5))
+        }
+       
     }
 }

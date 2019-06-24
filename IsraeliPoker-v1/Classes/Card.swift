@@ -9,18 +9,18 @@
 import UIKit
 import SpriteKit
 
-class Card {
+class Card: Codable {
 
     var value: Int
     var cardName: String
     var suit: String
-    var sprite: SKSpriteNode
+    var sprite: String
     var hand: Int!
     var player: Int!
     var numInHand: Int!
     
     
-    init(value: Int, cardName: String, suit: String, sprite: SKSpriteNode) {
+    init(value: Int, cardName: String, suit: String, sprite: String) {
         self.value = value
         self.cardName = cardName
         self.suit = suit

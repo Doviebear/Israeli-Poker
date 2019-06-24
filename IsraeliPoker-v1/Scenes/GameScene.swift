@@ -10,27 +10,33 @@ import SpriteKit
 import GameplayKit
 
 class GameScene: SKScene {
-    var deck = Deck()
-    var roundNum = 2
-    var turnNum = 0
     
+    var model: GameModel
+    var cardsInPlay: [Card]!
     
     override func didMove(to view: SKView) {
-        // lay out 5 cards for each person
+        //Given that GameModel has loaded all the data, I need to display it all
+        cardsInPlay = model.CardsInPlay
         
-        deck.createDeck()
-        for player in 1...2 {
-            for hand in 1...5 {
-                let card = deck.drawCard()
-                card.addToHand(handNum: hand, player: player, numInHand: 1)
-                drawCardSprite(Card: card)
-            }
+        for card in cardsInPlay {
+            drawCardSprite(Card: card)
         }
-        
-        
+      
+        backgroundColor = .red
         
     }
     
+     init(model: GameModel) {
+        self.model = model
+        
+        super.init(size: .zero)
+        
+        scaleMode = .resizeFill
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("required Init didn't work")
+    }
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
     }
     
@@ -41,16 +47,12 @@ class GameScene: SKScene {
     func cardPlaced() {
         
         
-        turnNum += 1
-        if turnNum % 10 == 0 {
-            roundNum += 1
-        }
     }
     func roundEnd() {
         
     }
     func drawCardSprite(Card: Card) {
-        let sprite = Card.sprite
+        let sprite = SKSpriteNode(imageNamed: Card.sprite)
         sprite.position = Card.getPosition()
         addChild(sprite)
     }
