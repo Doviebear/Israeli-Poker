@@ -74,13 +74,12 @@ class MenuScene: SKScene {
             
             for node in nodesArray {
                 if (node.name == "localPlayButton" && localButtonEnabled == true) {
-                    /*
-                    localPlayButton.texture = SKTexture(imageNamed: "blue_button04")
+                 
                     let transition = SKTransition.flipVertical(withDuration: 0.5)
-                    let gameScene = GameScene(size: self.size)
+                    let gameScene = GameScene(model: GameModel())
                     self.view?.presentScene(gameScene, transition: transition)
                     return
-                    */
+                    
                 } else if (node.name == "onlinePlayButton" && onlineButtonEnabled == true) {
                     onlinePlayButton.texture = SKTexture(imageNamed: "blue_button04")
                     print("Online Button Pressed")

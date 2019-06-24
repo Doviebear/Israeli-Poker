@@ -31,6 +31,7 @@ class Card: Codable {
         self.hand = handNum
         self.player = player
         self.numInHand = numInHand
+        
     }
     func getPosition() -> CGPoint {
         // 170 pixels between each card and between edges
@@ -43,6 +44,20 @@ class Card: Codable {
              y = 504 + ((self.numInHand - 1) * 75)
         }
         return CGPoint(x:x, y:y)
+    }
+    
+    func getCardSprite() -> SKSpriteNode {
+        let sprite = SKSpriteNode(imageNamed: self.sprite)
+        sprite.position = self.getPosition()
+        sprite.zPosition = CGFloat(self.numInHand + 4)
+        return sprite
+    }
+    func getTopCardSprite() -> SKSpriteNode {
+        let sprite = SKSpriteNode(imageNamed: self.sprite)
+        sprite.position = CGPoint(x: 100, y: 384)
+        sprite.zPosition = 11
+        sprite.name = "TopCard"
+        return sprite
     }
 }
 

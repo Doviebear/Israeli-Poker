@@ -14,6 +14,10 @@ struct GameModel: Codable {
     var CardsInPlay: [Card]
     var roundNum = 2
     var turnNum = 0
+    var topCard: Card!
+    var playerTurn = 1
+    var playerOneScore = 0
+    var playerTwoScore = 0
     
     
     init(){
@@ -26,6 +30,7 @@ struct GameModel: Codable {
                 CardsInPlay.append(card)
             }
         }
+        topCard = self.deck.drawCard()
     }
     
     
