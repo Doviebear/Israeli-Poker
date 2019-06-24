@@ -61,3 +61,12 @@ class Card: Codable {
     }
 }
 
+class HistogramElement {
+    var value: Int
+    var freq: Int
+    
+    init(value: Int, freq: Int){
+        self.value = value
+        self.freq = freq
+    }
+}
