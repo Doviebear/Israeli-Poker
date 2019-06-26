@@ -19,6 +19,7 @@ class GameScene: SKScene {
     var playerOneScoreNode: SKLabelNode?
     var playerTwoScoreNode: SKLabelNode?
     var spritesInPlay = [SKNode]()
+    
     var playerOneScore: Int! {
         didSet {
             if let node = playerOneScoreNode {
@@ -41,6 +42,9 @@ class GameScene: SKScene {
         cardsInPlay = model.CardsInPlay
         deck = model.deck
         
+        
+        
+        
         for card in cardsInPlay {
             let sprite = card.getCardSprite()
             spritesInPlay.append(sprite)
@@ -52,33 +56,39 @@ class GameScene: SKScene {
         playerOneScore = model.playerOneScore
         playerTwoScore = model.playerTwoScore
         playerOneScoreNode = SKLabelNode(text: "Score: \(playerOneScore!)")
-        playerOneScoreNode?.position = CGPoint(x: 100, y: 50)
+        playerOneScoreNode?.position = CGPoint(x: JKGame.rect.minX + 100, y: JKGame.rect.minY + 100)
         addChild(playerOneScoreNode!)
         
         playerTwoScoreNode = SKLabelNode(text: "Score: \(playerTwoScore!)")
-        playerTwoScoreNode?.position = CGPoint(x: 100, y: 750)
+        playerTwoScoreNode?.position = CGPoint(x: JKGame.rect.minX + 100, y: JKGame.rect.maxY - 100)
         addChild(playerTwoScoreNode!)
         
         backgroundColor = .red
         
+        let backButton = SKSpriteNode(imageNamed: "backButton")
+        backButton.position = CGPoint(x: JKGame.rect.minX + 50, y: JKGame.rect.maxY - 50)
+        backButton.size = CGSize(width: 50,height: 50 )
+        backButton.name = "backButton"
+        addChild(backButton)
     }
     
      init(model: GameModel) {
         self.model = model
         
-        super.init(size: .zero)
+        super.init(size: JKGame.size)
         
-        scaleMode = .resizeFill
+        scaleMode = .aspectFill
     }
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("required Init didn't work")
     }
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-       
-    }
+    
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+     //   guard  GameCenterHelper.helper.canTakeTurnForCurrentMatch else {
+     //       return
+     //   }
         let touch = touches.first
         
         if let location = touch?.location(in: self) {
@@ -92,26 +102,51 @@ class GameScene: SKScene {
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if roundEnded {
-            newRound()
-            return
-        }
-        
         let touch = touches.first
         
         if let location = touch?.location(in: self) {
-            // Put the topCard into the hand its hovering over and update model and top Card
-            let handNum = findHand(at: location)
-            if handIsValid(hand: handNum) {
-                model.topCard.addToHand(handNum: handNum, player: model.playerTurn, numInHand: model.roundNum)
-                let sprite = model.topCard.getCardSprite()
-                spritesInPlay.append(sprite)
-                addChild(sprite)
-                model.CardsInPlay.append(model.topCard)
-                nextTurn()
-            } else {
+            let nodesArray = self.nodes(at: location)
+            for node in nodesArray {
+                if node.name == "backButton" {
+                    if let scene = GKScene(fileNamed: "MenuScene") {
+                        
+                        // Get the SKScene from the loaded GKScene
+                        if let sceneNode = scene.rootNode as! MenuScene? {
+                            
+                            // Copy gameplay related content over to the scene
+                            
+                            
+                            // Set the scale mode to scale to fit the window
+                            sceneNode.scaleMode = .aspectFill
+                            sceneNode.size = JKGame.size
+                            view?.presentScene(sceneNode, transition: SKTransition.push(with: .down, duration: 0.3))
+                        }
+                    }
+                }
+            }
+        
+    
+           // guard  GameCenterHelper.helper.canTakeTurnForCurrentMatch else {
+           //     return
+           // }
+            if roundEnded {
+                newRound()
                 return
             }
+        
+        
+                // Put the topCard into the hand its hovering over and update model and top Card
+                let handNum = findHand(at: location)
+                if handIsValid(hand: handNum) {
+                    model.topCard.addToHand(handNum: handNum, player: model.playerTurn, numInHand: model.roundNum)
+                    let sprite = model.topCard.getCardSprite()
+                    spritesInPlay.append(sprite)
+                    addChild(sprite)
+                    model.CardsInPlay.append(model.topCard)
+                    nextTurn()
+                } else {
+                    return
+                }
         }
     }
     
@@ -149,6 +184,15 @@ class GameScene: SKScene {
         if model.roundNum == 6 {
             roundEnd()
         }
+        /*
+        GameCenterHelper.helper.endTurn(model) { error in
+            if let e = error {
+                print("Error ending turn: \(e.localizedDescription)")
+                return
+            }
+ 
+        }
+      */
     }
     
     func roundEnd() {

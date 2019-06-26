@@ -18,6 +18,7 @@ class Card: Codable {
     var hand: Int!
     var player: Int!
     var numInHand: Int!
+    var cardSize: CGSize!
     
     
     init(value: Int, cardName: String, suit: String, sprite: String) {
@@ -25,6 +26,13 @@ class Card: Codable {
         self.cardName = cardName
         self.suit = suit
         self.sprite = sprite
+        if JKGame.size.width < 1250 {
+            cardSize = CGSize(width: 84, height: 114)
+        } else if JKGame.size.width < 2000 {
+            cardSize = CGSize(width: 140, height: 190)
+        } else {
+            cardSize = CGSize(width: 182, height: 247)
+        }
     }
     
     func addToHand(handNum:Int, player: Int,numInHand:Int){
@@ -35,13 +43,15 @@ class Card: Codable {
     }
     func getPosition() -> CGPoint {
         // 170 pixels between each card and between edges
-        let x = (self.hand * 170) + 100
+        let x = Int(JKGame.rect.maxX/8) * (self.hand + 1)
         // 75 pixles between each card vertically, 120 pixels between the top and bottom
         let y: Int
+        let handMultiplier = (self.numInHand - 1) * 60
         if self.player == 1 {
-             y = 264 - ((self.numInHand - 1) * 75)
+            
+            y = Int((JKGame.rect.midY - cardSize.height/2)) - (handMultiplier)
         } else {
-             y = 504 + ((self.numInHand - 1) * 75)
+            y = Int((JKGame.rect.midY + cardSize.height/2)) + (handMultiplier)
         }
         return CGPoint(x:x, y:y)
     }
@@ -50,13 +60,15 @@ class Card: Codable {
         let sprite = SKSpriteNode(imageNamed: self.sprite)
         sprite.position = self.getPosition()
         sprite.zPosition = CGFloat(self.numInHand + 4)
+        sprite.size = cardSize
         return sprite
     }
     func getTopCardSprite() -> SKSpriteNode {
         let sprite = SKSpriteNode(imageNamed: self.sprite)
-        sprite.position = CGPoint(x: 100, y: 384)
+        sprite.position = CGPoint(x: (JKGame.rect.maxX/8), y: JKGame.rect.midY)
         sprite.zPosition = 11
         sprite.name = "TopCard"
+        sprite.size = cardSize
         return sprite
     }
 }

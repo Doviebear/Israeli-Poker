@@ -12,17 +12,25 @@ import GameKit
 class MenuScene: SKScene {
     var localPlayButton: SKSpriteNode!
     var onlinePlayButton: SKSpriteNode!
+    var titleNode: SKLabelNode!
     var localButtonEnabled = true
     var onlineButtonEnabled = GameCenterHelper.isAuthenticated
     
     
+    
+    
     override func didMove(to view: SKView) {
+        //GameCenterHelper.helper.currentMatch = nil
+        
         localPlayButton = (self.childNode(withName: "localPlayButton") as! SKSpriteNode)
         localPlayButton.texture = SKTexture(imageNamed: "blue_button04")
+        localPlayButton.position = CGPoint(x: (JKGame.rect.midX), y: JKGame.rect.midY)
+       
         
         
-       
-       
+        
+        titleNode = (self.childNode(withName: "title") as! SKLabelNode)
+        titleNode.position = CGPoint(x: JKGame.rect.midX, y: JKGame.rect.maxY - 200)
         
         
         let localPlayButtonLabel = SKLabelNode(fontNamed: "kenvector future")
@@ -34,6 +42,7 @@ class MenuScene: SKScene {
         
         onlinePlayButton = (self.childNode(withName: "onlinePlayButton") as! SKSpriteNode)
         onlinePlayButton.texture = SKTexture(imageNamed: "blue_button04")
+        onlinePlayButton.position = CGPoint(x: JKGame.rect.midX, y: (JKGame.rect.midY) - 150)
         
         
         let onlinePlayButtonLabel = SKLabelNode(fontNamed: "kenvector future")
@@ -117,6 +126,8 @@ class MenuScene: SKScene {
             } else {
                 model = GameModel()
             }
+            
+           // GameCenterHelper.helper.currentMatch = match
             self.view?.presentScene(GameScene(model: model), transition: .flipHorizontal(withDuration: 0.5))
         }
        

@@ -40,6 +40,20 @@ final class GameCenterHelper: NSObject {
     }
     
     var currentMatchmakerVC: GKTurnBasedMatchmakerViewController?
+    var currentMatch: GKTurnBasedMatch?
+    var canTakeTurnForCurrentMatch: Bool {
+        guard let match = currentMatch else {
+            return true
+        }
+        
+        return match.isLocalPlayersTurn
+        
+    }
+    enum GameCenterHelperError: Error {
+        case matchNotFound
+    }
+    
+    
     
     override init() {
         super.init()
@@ -74,6 +88,49 @@ final class GameCenterHelper: NSObject {
         currentMatchmakerVC = vc
         viewController?.present(vc, animated: true)
     }
+    //// NOT MY CODE, JUST WANT TO SEE IF IT WORKS
+    /*
+    func endTurn(_ model: GameModel, completion: @escaping CompletionBlock) {
+        // 1
+        guard let match = currentMatch else {
+            completion(GameCenterHelperError.matchNotFound)
+            return
+        }
+        
+        do {
+            //match.message = model.messageToDisplay
+            
+            // 2
+            match.endTurn(
+                withNextParticipants: match.others,
+                turnTimeout: GKExchangeTimeoutDefault,
+                match: try JSONEncoder().encode(model),
+                completionHandler: completion
+            )
+        } catch {
+            completion(error)
+        }
+    }
+    
+    func win(completion: @escaping CompletionBlock) {
+        guard let match = currentMatch else {
+            completion(GameCenterHelperError.matchNotFound)
+            return
+        }
+        
+        // 3
+        match.currentParticipant?.matchOutcome = .won
+        match.others.forEach { other in
+            other.matchOutcome = .lost
+        }
+        
+        match.endMatchInTurn(
+            withMatch: match.matchData ?? Data(),
+            completionHandler: completion
+        )
+    }
+    
+    */
 }
 
 extension Notification.Name {
@@ -120,3 +177,13 @@ extension GameCenterHelper: GKLocalPlayerListener {
     
 }
 
+extension GKTurnBasedMatch {
+    var isLocalPlayersTurn: Bool {
+        return currentParticipant?.player == GKLocalPlayer.local
+    }
+    var others: [GKTurnBasedParticipant] {
+        return participants.filter {
+            return $0.player != GKLocalPlayer.local
+        }
+    }
+}
