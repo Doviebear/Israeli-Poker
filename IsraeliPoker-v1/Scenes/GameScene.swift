@@ -243,6 +243,16 @@ class GameScene: SKScene {
                 print("error")
             }
         }
+        if playerOneScore > 11 && playerOneScore > playerTwoScore {
+            // game ends, player one wins
+            endGame(winner: 1)
+        } else if playerTwoScore > 11 && playerTwoScore > playerOneScore {
+            // game ends, player Two wins
+            endGame(winner: 2)
+        } else {
+            // exit the function
+            return
+        }
     }
     
     func newRound() {
@@ -268,7 +278,20 @@ class GameScene: SKScene {
         }
     }
     
-    
+    func endGame(winner: Int) {
+        roundEnded = false
+        for sprite in spritesInPlay {
+            sprite.removeFromParent()
+        }
+        topCardSprite.removeFromParent()
+        let endGameLabel = SKLabelNode(text: "Player \(winner) Won!")
+        endGameLabel.fontSize = 244
+        endGameLabel.verticalAlignmentMode = .center
+        endGameLabel.position = CGPoint(x: JKGame.rect.midX, y: JKGame.rect.midY)
+        endGameLabel.zPosition = 1000
+        addChild(endGameLabel)
+    }
+ 
     
     
     
