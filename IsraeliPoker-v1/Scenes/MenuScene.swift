@@ -17,20 +17,24 @@ class MenuScene: SKScene {
     var onlineButtonEnabled = GameCenterHelper.isAuthenticated
     
     
-    
-    
     override func didMove(to view: SKView) {
         //GameCenterHelper.helper.currentMatch = nil
-        
-        localPlayButton = (self.childNode(withName: "localPlayButton") as! SKSpriteNode)
-        localPlayButton.texture = SKTexture(imageNamed: "blue_button04")
+        backgroundColor = .blue
+        localPlayButton = SKSpriteNode(imageNamed: "blue_button04")
         localPlayButton.position = CGPoint(x: (JKGame.rect.midX), y: JKGame.rect.midY)
+        localPlayButton.size = CGSize(width: 190, height: 49)
+        localPlayButton.name = "localPlayButton"
+        addChild(localPlayButton)
        
         
         
         
-        titleNode = (self.childNode(withName: "title") as! SKLabelNode)
+        titleNode = SKLabelNode(text: "Israeli Poker")
+        titleNode.fontName = "kenvector future thin"
         titleNode.position = CGPoint(x: JKGame.rect.midX, y: JKGame.rect.maxY - 200)
+        titleNode.fontSize = 72
+        titleNode.fontColor = .red
+        addChild(titleNode)
         
         
         let localPlayButtonLabel = SKLabelNode(fontNamed: "kenvector future")
@@ -40,9 +44,11 @@ class MenuScene: SKScene {
         localPlayButtonLabel.fontSize = 24
         localPlayButton.addChild(localPlayButtonLabel)
         
-        onlinePlayButton = (self.childNode(withName: "onlinePlayButton") as! SKSpriteNode)
-        onlinePlayButton.texture = SKTexture(imageNamed: "blue_button04")
+        onlinePlayButton = SKSpriteNode(imageNamed: "blue_button04")
+        onlinePlayButton.name = "onlinePlayButton"
+        onlinePlayButton.size = CGSize(width: 190, height: 49)
         onlinePlayButton.position = CGPoint(x: JKGame.rect.midX, y: (JKGame.rect.midY) - 150)
+        addChild(onlinePlayButton)
         
         
         let onlinePlayButtonLabel = SKLabelNode(fontNamed: "kenvector future")

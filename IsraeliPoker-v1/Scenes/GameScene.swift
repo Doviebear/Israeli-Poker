@@ -42,14 +42,14 @@ class GameScene: SKScene {
         cardsInPlay = model.CardsInPlay
         deck = model.deck
         
-        
-        
-        
         for card in cardsInPlay {
             let sprite = card.getCardSprite()
             spritesInPlay.append(sprite)
             addChild(sprite)
         }
+        
+        backgroundColor = .red
+        
         topCardSprite = model.topCard.getTopCardSprite()
         addChild(topCardSprite)
         
@@ -63,7 +63,7 @@ class GameScene: SKScene {
         playerTwoScoreNode?.position = CGPoint(x: JKGame.rect.minX + 100, y: JKGame.rect.maxY - 100)
         addChild(playerTwoScoreNode!)
         
-        backgroundColor = .red
+        
         
         let backButton = SKSpriteNode(imageNamed: "backButton")
         backButton.position = CGPoint(x: JKGame.rect.minX + 50, y: JKGame.rect.maxY - 50)
@@ -108,24 +108,16 @@ class GameScene: SKScene {
             let nodesArray = self.nodes(at: location)
             for node in nodesArray {
                 if node.name == "backButton" {
-                    if let scene = GKScene(fileNamed: "MenuScene") {
+                    let scene = MenuScene()
                         
                         // Get the SKScene from the loaded GKScene
-                        if let sceneNode = scene.rootNode as! MenuScene? {
-                            
-                            // Copy gameplay related content over to the scene
-                            
-                            
-                            // Set the scale mode to scale to fit the window
-                            sceneNode.scaleMode = .aspectFill
-                            sceneNode.size = JKGame.size
-                            view?.presentScene(sceneNode, transition: SKTransition.push(with: .down, duration: 0.3))
-                        }
-                    }
+                    
+                        scene.scaleMode = .aspectFill
+                        scene.size = JKGame.size
+                        view?.presentScene(scene, transition: SKTransition.push(with: .down, duration: 0.3))
+                    
                 }
             }
-        
-    
            // guard  GameCenterHelper.helper.canTakeTurnForCurrentMatch else {
            //     return
            // }
