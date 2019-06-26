@@ -36,6 +36,8 @@ class GameScene: SKScene {
         }
     }
     
+    /// Setup
+    
     override func didMove(to view: SKView) {
         //z=positions: Cards: 5-9, TopCard: 11
         //Given that GameModel has loaded all the data, I need to display it all
@@ -45,13 +47,16 @@ class GameScene: SKScene {
         for card in cardsInPlay {
             let sprite = card.getCardSprite()
             spritesInPlay.append(sprite)
+            sprite.name = card.sprite
             addChild(sprite)
         }
         
         backgroundColor = .red
         
+        // Top Card Sprite
         topCardSprite = model.topCard.getTopCardSprite()
         addChild(topCardSprite)
+        
         
         playerOneScore = model.playerOneScore
         playerTwoScore = model.playerTwoScore
@@ -75,6 +80,7 @@ class GameScene: SKScene {
      init(model: GameModel) {
         self.model = model
         
+        
         super.init(size: JKGame.size)
         
         scaleMode = .aspectFill
@@ -85,12 +91,10 @@ class GameScene: SKScene {
     }
     
     
+    /// Handling Touches
+    
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-     //   guard  GameCenterHelper.helper.canTakeTurnForCurrentMatch else {
-     //       return
-     //   }
         let touch = touches.first
-        
         if let location = touch?.location(in: self) {
             let nodesArray = self.nodes(at: location)
             for node in nodesArray {
@@ -102,66 +106,80 @@ class GameScene: SKScene {
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        let touch = touches.first
+        // Check if round is over, if yes then start and new round and exit the function, else contiune
+        if roundEnded {
+            newRound()
+            return
+        }
         
+        // Check for the nodes that were tapped, used to check if any buttons were pressed
+        let touch = touches.first
         if let location = touch?.location(in: self) {
             let nodesArray = self.nodes(at: location)
-            for node in nodesArray {
-                if node.name == "backButton" {
-                    let scene = MenuScene()
-                        
-                        // Get the SKScene from the loaded GKScene
-                    
-                        scene.scaleMode = .aspectFill
-                        scene.size = JKGame.size
-                        view?.presentScene(scene, transition: SKTransition.push(with: .down, duration: 0.3))
-                    
-                }
+            if let node = nodesArray.first {
+                handleTouch(at: node)
             }
-           // guard  GameCenterHelper.helper.canTakeTurnForCurrentMatch else {
-           //     return
-           // }
-            if roundEnded {
-                newRound()
-                return
-            }
-        
-        
-                // Put the topCard into the hand its hovering over and update model and top Card
-                let handNum = findHand(at: location)
-                if handIsValid(hand: handNum) {
-                    model.topCard.addToHand(handNum: handNum, player: model.playerTurn, numInHand: model.roundNum)
-                    let sprite = model.topCard.getCardSprite()
-                    spritesInPlay.append(sprite)
-                    addChild(sprite)
-                    model.CardsInPlay.append(model.topCard)
-                    nextTurn()
-                } else {
-                    return
-                }
         }
     }
     
-    func deckTapped() {
-        
+    func handleTouch(at node: SKNode) {
+        // Back Button was pressed
+        if node.name == "backButton" {
+            let scene = MenuScene()
+            
+            // Get the SKScene from the loaded GKScene
+            
+            scene.scaleMode = .aspectFill
+            scene.size = JKGame.size
+            view?.presentScene(scene, transition: SKTransition.push(with: .down, duration: 0.3))
+            
+        } else if let spriteNode = node as? SKSpriteNode {
+            
+            let hand = findHand(at: spriteNode )
+            handTapped(hand: hand)
+        }
     }
    
-    func newTopCard() {
-        topCardSprite.removeFromParent()
-        model.topCard = model.deck.drawCard()
-        topCardSprite = model.topCard.getTopCardSprite()
-        addChild(topCardSprite)
+    
+    func handTapped(hand: Int) {
+        if hand == 6 { return }
+        if !handIsValid(hand: hand) { return }
+        
+        model.topCard.addToHand(handNum: hand, player: model.playerTurn, numInHand: model.roundNum)
+        let sprite = model.topCard.getCardSprite()
+        sprite.name = model.topCard.sprite
+        spritesInPlay.append(sprite)
+        addChild(sprite)
+        model.CardsInPlay.append(model.topCard)
+        nextTurn()
         
     }
-    func findHand(at location: CGPoint) -> Int {
-        for i in 1...5 {
-            if Int(location.x) >= (i * 170) + 30  && Int(location.x) <= ((i + 1) * 170) + 100 {
-                return i
+    
+    func handIsValid(hand: Int) -> Bool {
+        let playerTurn = model.playerTurn
+        let cardsInPlay = model.CardsInPlay
+        let roundNum = model.roundNum
+        if hand == 6 { return false }
+        for card in cardsInPlay {
+            if card.numInHand == roundNum && card.player == playerTurn && card.hand == hand {
+                return false
             }
         }
-        return 6
-        
+        return true
     }
+    
+    func findHand(at node: SKSpriteNode) -> Int {
+        let spriteName = node.name
+        for card in model.CardsInPlay {
+            if card.sprite == spriteName {
+                return card.hand
+            }
+        }
+        return 6 // there was an error
+    }
+    
+    /// Handles New Turns
+    
     func nextTurn() {
         newTopCard()
         model.turnNum += 1
@@ -176,16 +194,20 @@ class GameScene: SKScene {
         if model.roundNum == 6 {
             roundEnd()
         }
-        /*
-        GameCenterHelper.helper.endTurn(model) { error in
-            if let e = error {
-                print("Error ending turn: \(e.localizedDescription)")
-                return
-            }
- 
-        }
-      */
+       
     }
+    func newTopCard() {
+        topCardSprite.removeFromParent()
+        model.topCard = model.deck.drawCard()
+        topCardSprite = model.topCard.getTopCardSprite()
+        addChild(topCardSprite)
+        
+    }
+    
+    
+    
+    
+    /// Handles new rounds
     
     func roundEnd() {
         // disable interaction with the screen
@@ -239,24 +261,22 @@ class GameScene: SKScene {
                 card.addToHand(handNum: hand, player: player, numInHand: 1)
                 model.CardsInPlay.append(card)
                 let sprite = card.getCardSprite()
+                sprite.name = card.sprite
                 spritesInPlay.append(sprite)
                 addChild(sprite)
             }
         }
     }
     
-    func handIsValid(hand: Int) -> Bool {
-        let playerTurn = model.playerTurn
-        let cardsInPlay = model.CardsInPlay
-        let roundNum = model.roundNum
-        if hand == 6 { return false }
-        for card in cardsInPlay {
-            if card.numInHand == roundNum && card.player == playerTurn && card.hand == hand {
-                return false
-            }
-        }
-        return true
-    }
+    
+    
+    
+    
+    // End of Round Logic
+    
+    
+    
+    
     func getHand(Hand: Int, Player: Int) -> [Card] {
         var handArray = [Card]()
         for card in model.CardsInPlay {
