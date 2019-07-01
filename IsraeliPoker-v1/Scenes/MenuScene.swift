@@ -18,7 +18,7 @@ class MenuScene: SKScene {
     
     
     override func didMove(to view: SKView) {
-        //GameCenterHelper.helper.currentMatch = nil
+        GameCenterHelper.helper.currentMatch = nil
         backgroundColor = .blue
         localPlayButton = SKSpriteNode(imageNamed: "blue_button04")
         localPlayButton.position = CGPoint(x: (JKGame.rect.midX), y: JKGame.rect.midY)
@@ -26,7 +26,6 @@ class MenuScene: SKScene {
         localPlayButton.name = "localPlayButton"
         addChild(localPlayButton)
        
-        
         
         
         titleNode = SKLabelNode(text: "Israeli Poker")
@@ -91,7 +90,7 @@ class MenuScene: SKScene {
                 if (node.name == "localPlayButton" && localButtonEnabled == true) {
                  
                     let transition = SKTransition.flipVertical(withDuration: 0.5)
-                    let gameScene = GameScene(model: GameModel())
+                    let gameScene = GameSceneLocal(model: GameModel(), gameMode: "local", match: nil)
                     self.view?.presentScene(gameScene, transition: transition)
                     return
                     
@@ -103,9 +102,6 @@ class MenuScene: SKScene {
                 }
             }
         }
-    }
-    func authenticatePlayer() {
-        
     }
     @objc func authenticationChanged(_ notification: Notification) {
         onlineButtonEnabled = notification.object as? Bool ?? false
@@ -120,6 +116,7 @@ class MenuScene: SKScene {
     }
     
     func loadAndDisplay(match: GKTurnBasedMatch) {
+       
         match.loadMatchData { data, error in
             let model: GameModel
             
@@ -132,9 +129,9 @@ class MenuScene: SKScene {
             } else {
                 model = GameModel()
             }
-            
-           // GameCenterHelper.helper.currentMatch = match
-            self.view?.presentScene(GameScene(model: model), transition: .flipHorizontal(withDuration: 0.5))
+ 
+            GameCenterHelper.helper.currentMatch = match
+            self.view?.presentScene(GameScene(model: model, gameMode: "online", match: match), transition: .flipHorizontal(withDuration: 0.5))
         }
        
     }

@@ -19,6 +19,7 @@ class Card: Codable {
     var player: Int!
     var numInHand: Int!
     var cardSize: CGSize!
+    var isRevealed: Bool?
     
     
     init(value: Int, cardName: String, suit: String, sprite: String) {
@@ -41,6 +42,10 @@ class Card: Codable {
         self.numInHand = numInHand
         
     }
+    
+    func printName () {
+        print("\(self.cardName) of \(self.suit)")
+    }
     func getPosition() -> CGPoint {
         // 170 pixels between each card and between edges
         let x = Int(JKGame.rect.maxX/8) * (self.hand + 1)
@@ -56,20 +61,55 @@ class Card: Codable {
         return CGPoint(x:x, y:y)
     }
     
-    func getCardSprite() -> SKSpriteNode {
-        let sprite = SKSpriteNode(imageNamed: self.sprite)
+    func getCardSprite(revealed: Bool) -> SKSpriteNode {
+        let sprite: SKSpriteNode!
+        if !revealed {
+            sprite = SKSpriteNode(imageNamed: "cardBack_blue3")
+            self.isRevealed = false
+        } else {
+            sprite = SKSpriteNode(imageNamed: self.sprite)
+            self.isRevealed = true
+        }
         sprite.position = self.getPosition()
         sprite.zPosition = CGFloat(self.numInHand + 4)
         sprite.size = cardSize
         return sprite
     }
-    func getTopCardSprite() -> SKSpriteNode {
-        let sprite = SKSpriteNode(imageNamed: self.sprite)
+    func getTopCardSprite(revealed: Bool) -> SKSpriteNode {
+        let sprite: SKSpriteNode!
+        if !revealed {
+            sprite = SKSpriteNode(imageNamed: "cardBack_blue3")
+            self.isRevealed = false
+        } else {
+            sprite = SKSpriteNode(imageNamed: self.sprite)
+            self.isRevealed = true
+        }
         sprite.position = CGPoint(x: (JKGame.rect.maxX/8), y: JKGame.rect.midY)
         sprite.zPosition = 11
         sprite.name = "TopCard"
         sprite.size = cardSize
         return sprite
+    }
+    
+    func returnCardToReveal(sprite: SKSpriteNode) -> SKSpriteNode{
+        sprite.removeFromParent()
+        let newSprite = SKSpriteNode(imageNamed: self.sprite)
+        newSprite.position = self.getPosition()
+        newSprite.zPosition = CGFloat(self.numInHand + 4)
+        newSprite.size = cardSize
+        return newSprite
+    }
+}
+extension Card: Equatable, Hashable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(value)
+        hasher.combine(suit)
+    }
+    static func == (Card1: Card, Card2: Card) -> Bool {
+        return
+            Card1.value == Card2.value &&
+                Card1.suit == Card2.suit &&
+                Card1.cardName == Card2.cardName
     }
 }
 

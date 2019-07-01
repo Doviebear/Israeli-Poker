@@ -9,7 +9,8 @@
 /* Begin PBXBuildFile section */
 		E82EC76F22BD6EB8001CD5DC /* GameModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82EC76E22BD6EB8001CD5DC /* GameModel.swift */; };
 		E82EC77122C286A6001CD5DC /* JKClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82EC77022C286A6001CD5DC /* JKClass.swift */; };
-		E82EC77522C3CF49001CD5DC /* GameSceneOnline.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82EC77422C3CF49001CD5DC /* GameSceneOnline.swift */; };
+		E82EC77522C3CF49001CD5DC /* GameSceneLocal.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82EC77422C3CF49001CD5DC /* GameSceneLocal.swift */; };
+		E82EC77722CA615D001CD5DC /* EndOfGameLogic.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82EC77622CA615D001CD5DC /* EndOfGameLogic.swift */; };
 		E85B6F0A22BC10080088979D /* GameCenterHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = E85B6F0922BC10080088979D /* GameCenterHelper.swift */; };
 		E85B6F0D22BC10380088979D /* GameKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E85B6F0C22BC10380088979D /* GameKit.framework */; };
 		E8AEFA1A22BAF30D0072ACD0 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8AEFA1922BAF30D0072ACD0 /* AppDelegate.swift */; };
@@ -28,7 +29,8 @@
 /* Begin PBXFileReference section */
 		E82EC76E22BD6EB8001CD5DC /* GameModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameModel.swift; sourceTree = "<group>"; };
 		E82EC77022C286A6001CD5DC /* JKClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JKClass.swift; sourceTree = "<group>"; };
-		E82EC77422C3CF49001CD5DC /* GameSceneOnline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameSceneOnline.swift; sourceTree = "<group>"; };
+		E82EC77422C3CF49001CD5DC /* GameSceneLocal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameSceneLocal.swift; sourceTree = "<group>"; };
+		E82EC77622CA615D001CD5DC /* EndOfGameLogic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EndOfGameLogic.swift; sourceTree = "<group>"; };
 		E85B6F0922BC10080088979D /* GameCenterHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameCenterHelper.swift; sourceTree = "<group>"; };
 		E85B6F0C22BC10380088979D /* GameKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameKit.framework; path = System/Library/Frameworks/GameKit.framework; sourceTree = SDKROOT; };
 		E85B6F0E22BC103E0088979D /* IsraeliPoker-v1.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "IsraeliPoker-v1.entitlements"; sourceTree = "<group>"; };
@@ -109,6 +111,7 @@
 				E8AEFA3122BAF31F0072ACD0 /* Card.swift */,
 				E8AEFA3322BAF3280072ACD0 /* Deck.swift */,
 				E82EC76E22BD6EB8001CD5DC /* GameModel.swift */,
+				E82EC77622CA615D001CD5DC /* EndOfGameLogic.swift */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -116,7 +119,7 @@
 		E8AEFA3A22BAF6890072ACD0 /* Scenes */ = {
 			isa = PBXGroup;
 			children = (
-				E82EC77422C3CF49001CD5DC /* GameSceneOnline.swift */,
+				E82EC77422C3CF49001CD5DC /* GameSceneLocal.swift */,
 				E8AEFA1F22BAF30D0072ACD0 /* GameScene.swift */,
 				E8AEFA3722BAF6360072ACD0 /* MenuScene.swift */,
 			);
@@ -223,10 +226,11 @@
 			files = (
 				E8AEFA2022BAF30D0072ACD0 /* GameScene.swift in Sources */,
 				E8AEFA2222BAF30D0072ACD0 /* GameViewController.swift in Sources */,
+				E82EC77722CA615D001CD5DC /* EndOfGameLogic.swift in Sources */,
 				E82EC77122C286A6001CD5DC /* JKClass.swift in Sources */,
 				E85B6F0A22BC10080088979D /* GameCenterHelper.swift in Sources */,
 				E8AEFA3422BAF3280072ACD0 /* Deck.swift in Sources */,
-				E82EC77522C3CF49001CD5DC /* GameSceneOnline.swift in Sources */,
+				E82EC77522C3CF49001CD5DC /* GameSceneLocal.swift in Sources */,
 				E8AEFA3822BAF6360072ACD0 /* MenuScene.swift in Sources */,
 				E82EC76F22BD6EB8001CD5DC /* GameModel.swift in Sources */,
 				E8AEFA1A22BAF30D0072ACD0 /* AppDelegate.swift in Sources */,

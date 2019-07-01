@@ -1,5 +1,5 @@
 //
-//  GameScene.swift
+//  GameSceneOnline.swift
 //  IsraeliPoker-v1
 //
 //  Created by Dovie Shalev on 6/19/19.
@@ -10,7 +10,7 @@ import SpriteKit
 import GameplayKit
 import GameKit
 
-class GameScene: SKScene {
+class GameSceneLocal: SKScene {
     
     var model: GameModel
     var gameMode: String
@@ -47,9 +47,6 @@ class GameScene: SKScene {
         //z=positions: Cards: 5-9, TopCard: 11
         //Given that GameModel has loaded all the data, I need to display it all
         loadScreen()
-        if gameMode == "online" {
-            NotificationCenter.default.addObserver(self, selector: #selector(reloadScreen(_:)), name: .presentGame, object: nil)
-        }
         
     }
     
@@ -70,38 +67,6 @@ class GameScene: SKScene {
         fatalError("required Init didn't work")
     }
     
-    @objc func reloadScreen(_ notification: Notification) {
-        if gameMode == "online" {
-            guard let currMatch = notification.object as? GKTurnBasedMatch else {
-                return
-            }
-            match = currMatch
-            currMatch.loadMatchData { data, error in
-                
-                if let data = data {
-                    do {
-                        self.model = try JSONDecoder().decode(GameModel.self, from: data)
-                        print("Decoded the new data")
-                        //print("IsLocalPlayersTurn: \(self.match?.isLocalPlayersTurn)")
-                        
-                        self.removeAllSprites()
-                        self.loadScreen()
-                        if self.model.turnNum == 0 {
-                            self.newRoundVisualChanges()
-                        }
-                    } catch {
-                        self.removeAllSprites()
-                        self.loadScreen()
-                        return
-                    }
-                } else {
-                    self.removeAllSprites()
-                    self.loadScreen()
-                    return
-                }
-            }
-        }
-    }
     
     func removeAllSprites() {
         for pair in spritesInPlay {
@@ -115,17 +80,7 @@ class GameScene: SKScene {
         
     }
     
-    @objc func loadScreen() {
-        
-        //Online Mode
-        if let currMatch = match {
-            if currMatch.isLocalPlayersTurn {
-                player = currMatch.participants.firstIndex(of: currMatch.currentParticipant!)! + 1
-            }
-        } else {
-            // change player for Local Mode
-            
-        }
+   func loadScreen() {
         
         cardsInPlay = model.CardsInPlay
         deck = model.deck
@@ -173,29 +128,9 @@ class GameScene: SKScene {
         
     }
     
-    func updateOnlineModel() {
-        isSendingTurn = true
-        GameCenterHelper.helper.endTurn(model: model, currMatch: match) { error in
-            defer {
-                self.isSendingTurn = false
-            }
-                
-            if let e = error {
-                print("Error ending turn: \(e.localizedDescription)")
-                return
-            }
-        }
-        
-    }
-    
     /// Handling Touches
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if gameMode == "online" {
-            guard !isSendingTurn && match?.isLocalPlayersTurn ?? false else {
-                return
-            }
-        }
         
         let touch = touches.first
         if let location = touch?.location(in: self) {
@@ -210,14 +145,6 @@ class GameScene: SKScene {
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         // Check if round is over, if yes then start and new round and exit the function, else contiune
-        //print("is Sending Turn: \(isSendingTurn)")
-        //print("Game Center can take turn: \(match?.isLocalPlayersTurn)")
-        //print("The current Participant is: \(match?.currentParticipant?.player)")
-        if gameMode == "online" {
-            guard !isSendingTurn && match?.isLocalPlayersTurn ?? false else {
-                return
-            }
-        }
         if model.roundNum == 6 {
             newRoundModelChanges()
             newRoundVisualChanges()
@@ -251,13 +178,13 @@ class GameScene: SKScene {
             handTapped(hand: hand)
         }
     }
-   
+    
     
     func handTapped(hand: Int) {
         if hand == 6 { return }
         if !handIsValid(hand: hand) { return }
         
-        model.topCard.addToHand(handNum: hand, player: (match?.participants.firstIndex(of: (match?.currentParticipant)!))! + 1, numInHand: model.roundNum)
+        model.topCard.addToHand(handNum: hand, player: model.playerTurn, numInHand: model.roundNum)
         let card = model.topCard!
         let sprite = card.getCardSprite(revealed: card.numInHand != 5)
         sprite.name = card.sprite
@@ -273,7 +200,7 @@ class GameScene: SKScene {
         let roundNum = model.roundNum
         if hand == 6 { return false }
         for card in cardsInPlay {
-            if card.numInHand == roundNum && card.player == player && card.hand == hand {
+            if card.numInHand == roundNum && card.player == model.playerTurn && card.hand == hand {
                 return false
             }
         }
@@ -284,7 +211,7 @@ class GameScene: SKScene {
         let spriteName = node.name
         for pair in spritesInPlay {
             if let sprite = pair[1] as? SKSpriteNode {
-               if spriteName == sprite.name {
+                if spriteName == sprite.name {
                     let card = pair[0] as! Card
                     return card.hand
                 }
@@ -296,28 +223,32 @@ class GameScene: SKScene {
     /// Handles New Turns
     
     func nextTurn() {
+        if model.playerTurn == 1 {
+            model.playerTurn = 2
+        } else if model.playerTurn == 2 {
+            model.playerTurn = 1
+        }
+        
         model.turnNum += 1
         if model.turnNum % 10 == 0 {
             model.roundNum += 1
         }
-        newTopCardModel()
         if model.roundNum == 6 {
             roundEnd()
             return
         }
-        if gameMode == "online" {
-            updateOnlineModel()
-        }
+        
         newTopCardVisual()
+        newTopCardModel()
     }
     func newTopCardModel() {
         model.topCard = model.deck.drawCard()
     }
     
     func newTopCardVisual() {
-        let revealed = (match?.participants.firstIndex(of: (match?.currentParticipant)!))! + 1 == player
+       
         topCardSprite.removeFromParent()
-        topCardSprite = model.topCard.getTopCardSprite(revealed:revealed )
+        topCardSprite = model.topCard.getTopCardSprite(revealed: true )
         addChild(topCardSprite)
     }
     
@@ -361,10 +292,8 @@ class GameScene: SKScene {
                 print("error")
             }
         }
-       
-        checkForWinner()
         endRoundAnimations()
-        updateOnlineModel()
+        checkForWinner()
     }
     func endRoundAnimations() {
         var count = 0
@@ -402,7 +331,7 @@ class GameScene: SKScene {
             } else if result == 2 {
                 // if player2 won the hand
                 
-               
+                
                 losingHandAnimation(hand: count, player: 1)
             } else if result == 3 {
                 // if they tied
@@ -423,11 +352,11 @@ class GameScene: SKScene {
             // exit the function
             return
         }
-
+        
     }
     
     func newRoundModelChanges() {
-       
+        
         model.deck.resetDeck()
         newTopCardModel()
         model.roundNum = 2
@@ -440,7 +369,6 @@ class GameScene: SKScene {
                 model.CardsInPlay.append(card)
             }
         }
-        updateOnlineModel()
     }
     
     func newRoundVisualChanges() {
@@ -507,12 +435,9 @@ class GameScene: SKScene {
         endGameLabel.position = CGPoint(x: JKGame.rect.midX, y: JKGame.rect.midY)
         endGameLabel.zPosition = 1000
         addChild(endGameLabel)
-        if gameMode == "online" {
-            GameCenterHelper.helper.win(winner: winner)
-        }
     }
-
+    
+    
 }
-
-
-
+    
+  

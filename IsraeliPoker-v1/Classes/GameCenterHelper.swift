@@ -89,17 +89,14 @@ final class GameCenterHelper: NSObject {
         viewController?.present(vc, animated: true)
     }
     //// NOT MY CODE, JUST WANT TO SEE IF IT WORKS
-    /*
-    func endTurn(_ model: GameModel, completion: @escaping CompletionBlock) {
+    
+    func endTurn(model: GameModel, currMatch: GKTurnBasedMatch?, completion: @escaping CompletionBlock) {
         // 1
-        guard let match = currentMatch else {
-            completion(GameCenterHelperError.matchNotFound)
+        //print("End turn Function Began")
+        guard let match = currMatch else {
             return
         }
-        
         do {
-            //match.message = model.messageToDisplay
-            
             // 2
             match.endTurn(
                 withNextParticipants: match.others,
@@ -107,35 +104,31 @@ final class GameCenterHelper: NSObject {
                 match: try JSONEncoder().encode(model),
                 completionHandler: completion
             )
+            //print("Turn Ended")
         } catch {
             completion(error)
         }
     }
     
-    func win(completion: @escaping CompletionBlock) {
+    func win(winner: Int) {
         guard let match = currentMatch else {
-            completion(GameCenterHelperError.matchNotFound)
             return
         }
-        
         // 3
-        match.currentParticipant?.matchOutcome = .won
-        match.others.forEach { other in
-            other.matchOutcome = .lost
-        }
+        match.participants[winner - 1].matchOutcome = .won
+            match.participants[abs(winner - 2)].matchOutcome = .lost
         
         match.endMatchInTurn(
             withMatch: match.matchData ?? Data(),
-            completionHandler: completion
+            completionHandler: nil
         )
     }
-    
-    */
 }
 
 extension Notification.Name {
     static let presentGame = Notification.Name(rawValue: "presentGame")
     static let authenticationChanged = Notification.Name(rawValue: "authenticationChanged")
+    static let playerTurnChanged = Notification.Name(rawValue: "playerTurnChanged")
 }
 
 extension GameCenterHelper: GKTurnBasedMatchmakerViewControllerDelegate{
@@ -149,31 +142,29 @@ extension GameCenterHelper: GKTurnBasedMatchmakerViewControllerDelegate{
 
 extension GameCenterHelper: GKLocalPlayerListener {
     func player(_ player: GKPlayer, wantsToQuitMatch match: GKTurnBasedMatch) {
-        var otherParticipant: GKTurnBasedParticipant!
-        let participants = match.participants
-        for participant in participants {
-            if participant != match.currentParticipant {
-                  otherParticipant = participant
-            }
-        }
         
         match.currentParticipant?.matchOutcome = .lost
-        otherParticipant.matchOutcome = .won
+        match.others.first!.matchOutcome = .won
         match.endMatchInTurn(withMatch: match.matchData ?? Data())
         
     }
     func player(_ player: GKPlayer, receivedTurnEventFor match: GKTurnBasedMatch, didBecomeActive: Bool) {
+        //print("running Function")
+        var canMove = false
         if let vc = currentMatchmakerVC {
             currentMatchmakerVC = nil
             vc.dismiss(animated: true)
+            canMove = true
         }
         
-        guard didBecomeActive else { return }
-        
-        
-        
-        NotificationCenter.default.post(name: .presentGame , object: match)
+        print("IsLocalPlayersTurn: \(match.isLocalPlayersTurn)")
+        print("When recieveing turn event Match ID is: \(match.matchID)")
+        if match.isLocalPlayersTurn || canMove{
+            NotificationCenter.default.post(name: .presentGame , object: match)
+            //print("Presenting Game")
+        }
     }
+    
     
 }
 

@@ -19,10 +19,6 @@ class GameViewController: UIViewController {
         // including entities and graphs.
          let sceneNode = MenuScene()
             
-            // Get the SKScene from the loaded GKScene
-            
-                
-                // Copy gameplay related content over to the scene
                
             sceneNode.size = JKGame.size
                 // Set the scale mode to scale to fit the window
