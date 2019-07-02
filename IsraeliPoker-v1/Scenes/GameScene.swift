@@ -141,7 +141,7 @@ class GameScene: SKScene {
             addChild(sprite)
         }
         
-        backgroundColor = .red
+        backgroundColor = UIColor(red: 45.0/255.0, green: 179.0/255.0, blue: 0.0, alpha: 1.0)
         
         // Top Card Sprite
         topCardSprite = model.topCard.getTopCardSprite(revealed: true)
@@ -151,11 +151,11 @@ class GameScene: SKScene {
         playerOneScore = model.playerOneScore
         playerTwoScore = model.playerTwoScore
         playerOneScoreNode = SKLabelNode(text: "Score: \(playerOneScore!)")
-        playerOneScoreNode?.position = CGPoint(x: JKGame.rect.minX + 100, y: JKGame.rect.minY + 100)
+        playerOneScoreNode?.position = CGPoint(x: JKGame.rect.minX + 100, y: JKGame.rect.minY + 150)
         addChild(playerOneScoreNode!)
         
         playerTwoScoreNode = SKLabelNode(text: "Score: \(playerTwoScore!)")
-        playerTwoScoreNode?.position = CGPoint(x: JKGame.rect.minX + 100, y: JKGame.rect.maxY - 100)
+        playerTwoScoreNode?.position = CGPoint(x: JKGame.rect.minX + 100, y: JKGame.rect.maxY - 150)
         addChild(playerTwoScoreNode!)
         
         
@@ -213,18 +213,7 @@ class GameScene: SKScene {
         //print("is Sending Turn: \(isSendingTurn)")
         //print("Game Center can take turn: \(match?.isLocalPlayersTurn)")
         //print("The current Participant is: \(match?.currentParticipant?.player)")
-        if gameMode == "online" {
-            guard !isSendingTurn && match?.isLocalPlayersTurn ?? false else {
-                return
-            }
-        }
-        if model.roundNum == 6 {
-            newRoundModelChanges()
-            newRoundVisualChanges()
-            return
-        }
         
-        // Check for the nodes that were tapped, used to check if any buttons were pressed
         let touch = touches.first
         if let location = touch?.location(in: self) {
             let nodesArray = self.nodes(at: location)
@@ -232,10 +221,24 @@ class GameScene: SKScene {
                 handleTouch(at: node)
             }
         }
+        
+        guard !isSendingTurn && match?.isLocalPlayersTurn ?? false else {
+            return
+        }
+        
+        if model.roundNum == 6 {
+            newRoundModelChanges()
+            newRoundVisualChanges()
+            return
+        }
+        
+        // Check for the nodes that were tapped, used to check if any buttons were pressed
+      
     }
     
     func handleTouch(at node: SKNode) {
         // Back Button was pressed
+        
         if node.name == "backButton" {
             let scene = MenuScene()
             
@@ -245,7 +248,12 @@ class GameScene: SKScene {
             scene.size = JKGame.size
             view?.presentScene(scene, transition: SKTransition.push(with: .down, duration: 0.3))
             
-        } else if let spriteNode = node as? SKSpriteNode {
+        }
+        guard !isSendingTurn && match?.isLocalPlayersTurn ?? false else {
+            return
+        }
+        
+        if let spriteNode = node as? SKSpriteNode {
             
             let hand = findHand(at: spriteNode )
             handTapped(hand: hand)

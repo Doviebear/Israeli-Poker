@@ -8,6 +8,8 @@
 
 import SpriteKit
 import GameKit
+import AWSPinpoint
+import AWSMobileClient
 
 class MenuScene: SKScene {
     var localPlayButton: SKSpriteNode!
@@ -111,7 +113,6 @@ class MenuScene: SKScene {
         guard let match = notification.object as? GKTurnBasedMatch else {
             return
         }
-        
         loadAndDisplay(match: match)
     }
     
@@ -135,4 +136,5 @@ class MenuScene: SKScene {
         }
        
     }
+    
 }

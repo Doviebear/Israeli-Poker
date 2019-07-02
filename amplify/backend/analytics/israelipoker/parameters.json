@@ -1,0 +1,20 @@
+{
+    "appName": "israelipoker",
+    "roleName": "pinpointLambdaRolec79a17df",
+    "cloudWatchPolicyName": "cloudWatchPolicyc79a17df",
+    "pinpointPolicyName": "pinpointPolicyc79a17df",
+    "authPolicyName": "pinpoint_amplify_c79a17df",
+    "unauthPolicyName": "pinpoint_amplify_c79a17df",
+    "authRoleName": {
+        "Ref": "AuthRoleName"
+    },
+    "unauthRoleName": {
+        "Ref": "UnauthRoleName"
+    },
+    "authRoleArn": {
+        "Fn::GetAtt": [
+            "AuthRole",
+            "Arn"
+        ]
+    }
+}

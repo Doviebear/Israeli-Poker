@@ -1,0 +1,19 @@
+{
+    "poker": {
+        "awscloudformation": {
+            "AuthRoleName": "israelipoker-poker-20190702120431-authRole",
+            "UnauthRoleArn": "arn:aws:iam::996154928228:role/israelipoker-poker-20190702120431-unauthRole",
+            "AuthRoleArn": "arn:aws:iam::996154928228:role/israelipoker-poker-20190702120431-authRole",
+            "Region": "us-east-1",
+            "DeploymentBucketName": "israelipoker-poker-20190702120431-deployment",
+            "UnauthRoleName": "israelipoker-poker-20190702120431-unauthRole",
+            "StackName": "israelipoker-poker-20190702120431",
+            "StackId": "arn:aws:cloudformation:us-east-1:996154928228:stack/israelipoker-poker-20190702120431/13c7ef10-9ce3-11e9-8bbe-0e27f3a268d6"
+        },
+        "categories": {
+            "auth": {
+                "cognito632923e3": {}
+            }
+        }
+    }
+}

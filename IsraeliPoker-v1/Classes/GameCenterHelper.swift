@@ -52,6 +52,8 @@ final class GameCenterHelper: NSObject {
     enum GameCenterHelperError: Error {
         case matchNotFound
     }
+    var allCurrentMatches = [GKTurnBasedMatch]()
+        
     
     
     
@@ -122,6 +124,9 @@ final class GameCenterHelper: NSObject {
             withMatch: match.matchData ?? Data(),
             completionHandler: nil
         )
+        if let MatchIndex = allCurrentMatches.firstIndex(of: match) {
+            allCurrentMatches.remove(at: MatchIndex)
+        }
     }
 }
 
@@ -146,10 +151,22 @@ extension GameCenterHelper: GKLocalPlayerListener {
         match.currentParticipant?.matchOutcome = .lost
         match.others.first!.matchOutcome = .won
         match.endMatchInTurn(withMatch: match.matchData ?? Data())
-        
+        print("player Quit Match")
     }
     func player(_ player: GKPlayer, receivedTurnEventFor match: GKTurnBasedMatch, didBecomeActive: Bool) {
         //print("running Function")
+        var isExistingMatch = false
+        for currmatch in allCurrentMatches {
+            if currmatch.matchID == match.matchID {
+                isExistingMatch = true
+            }
+        }
+        if !isExistingMatch {
+            allCurrentMatches.append(match)
+            AnalyticsManager.shared.create(event: "MatchCreated", attributes: ["MatchID": match.matchID])
+            AnalyticsManager.shared.uploadEvents()
+        }
+        
         var canMove = false
         if let vc = currentMatchmakerVC {
             currentMatchmakerVC = nil

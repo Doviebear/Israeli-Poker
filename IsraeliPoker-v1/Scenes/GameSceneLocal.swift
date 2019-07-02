@@ -96,7 +96,7 @@ class GameSceneLocal: SKScene {
             addChild(sprite)
         }
         
-        backgroundColor = .red
+        backgroundColor = UIColor(red: 45.0/255.0, green: 179.0/255.0, blue: 0.0, alpha: 1.0)
         
         // Top Card Sprite
         topCardSprite = model.topCard.getTopCardSprite(revealed: true)
@@ -106,11 +106,11 @@ class GameSceneLocal: SKScene {
         playerOneScore = model.playerOneScore
         playerTwoScore = model.playerTwoScore
         playerOneScoreNode = SKLabelNode(text: "Score: \(playerOneScore!)")
-        playerOneScoreNode?.position = CGPoint(x: JKGame.rect.minX + 100, y: JKGame.rect.minY + 100)
+        playerOneScoreNode?.position = CGPoint(x: JKGame.rect.minX + 100, y: JKGame.rect.minY + 150)
         addChild(playerOneScoreNode!)
         
         playerTwoScoreNode = SKLabelNode(text: "Score: \(playerTwoScore!)")
-        playerTwoScoreNode?.position = CGPoint(x: JKGame.rect.minX + 100, y: JKGame.rect.maxY - 100)
+        playerTwoScoreNode?.position = CGPoint(x: JKGame.rect.minX + 100, y: JKGame.rect.maxY - 150)
         addChild(playerTwoScoreNode!)
         
         
@@ -325,13 +325,9 @@ class GameSceneLocal: SKScene {
             count += 1
             if result == 1 {
                 // if player1 won the hand
-                
                 losingHandAnimation(hand: count, player: 2)
-                
             } else if result == 2 {
                 // if player2 won the hand
-                
-                
                 losingHandAnimation(hand: count, player: 1)
             } else if result == 3 {
                 // if they tied
