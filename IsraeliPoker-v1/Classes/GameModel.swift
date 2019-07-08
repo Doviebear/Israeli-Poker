@@ -31,6 +31,7 @@ struct GameModel: Codable {
             }
         }
         topCard = self.deck.drawCard()
+        
     }
     
     

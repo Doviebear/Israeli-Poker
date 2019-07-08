@@ -156,7 +156,12 @@ class GameSceneLocal: SKScene {
         if let location = touch?.location(in: self) {
             let nodesArray = self.nodes(at: location)
             if let node = nodesArray.first {
-                handleTouch(at: node)
+                if node.name == "TopCard" {
+                    let nextNode = nodesArray[1]
+                    handleTouch(at: nextNode)
+                } else {
+                    handleTouch(at: node)
+                }
             }
         }
     }
@@ -223,6 +228,7 @@ class GameSceneLocal: SKScene {
     /// Handles New Turns
     
     func nextTurn() {
+        // At this point the card the turn before has been changed from true to false
         if model.playerTurn == 1 {
             model.playerTurn = 2
         } else if model.playerTurn == 2 {
@@ -238,8 +244,9 @@ class GameSceneLocal: SKScene {
             return
         }
         
-        newTopCardVisual()
         newTopCardModel()
+        newTopCardVisual()
+        
     }
     func newTopCardModel() {
         model.topCard = model.deck.drawCard()
@@ -295,11 +302,15 @@ class GameSceneLocal: SKScene {
         endRoundAnimations()
         checkForWinner()
     }
+    
     func endRoundAnimations() {
         var count = 0
         for pair in spritesInPlay {
             let card = pair[0] as! Card
+            print("Count is: \(count)")
+            print("Card is Revealed: \(card.isRevealed ?? false)")
             if card.isRevealed == false {
+                print("Flipping")
                 let oldSprite = pair[1] as! SKSpriteNode
                 let newSprite = card.returnCardToReveal(sprite: oldSprite)
                 addChild(newSprite)

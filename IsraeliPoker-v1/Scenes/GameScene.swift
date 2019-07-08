@@ -24,6 +24,8 @@ class GameScene: SKScene {
     var match: GKTurnBasedMatch?
     var backButton: SKSpriteNode?
     var player: Int?
+    var nextCardYouCanPlay: SKSpriteNode?
+    
     
     var playerOneScore: Int! {
         didSet {
@@ -151,11 +153,11 @@ class GameScene: SKScene {
         playerOneScore = model.playerOneScore
         playerTwoScore = model.playerTwoScore
         playerOneScoreNode = SKLabelNode(text: "Score: \(playerOneScore!)")
-        playerOneScoreNode?.position = CGPoint(x: JKGame.rect.minX + 100, y: JKGame.rect.minY + 150)
+        playerOneScoreNode?.position = CGPoint(x: JKGame.rect.maxX - 150, y: JKGame.rect.minY + 150)
         addChild(playerOneScoreNode!)
         
         playerTwoScoreNode = SKLabelNode(text: "Score: \(playerTwoScore!)")
-        playerTwoScoreNode?.position = CGPoint(x: JKGame.rect.minX + 100, y: JKGame.rect.maxY - 150)
+        playerTwoScoreNode?.position = CGPoint(x: JKGame.rect.maxX - 150, y: JKGame.rect.maxY - 150)
         addChild(playerTwoScoreNode!)
         
         
@@ -166,6 +168,14 @@ class GameScene: SKScene {
         backButton!.name = "backButton"
         addChild(backButton!)
         //print("IsLocalPlayersTurn: \(match?.isLocalPlayersTurn)")
+        
+        let nextCardText = SKLabelNode(text: "Next Card")
+        nextCardText.position = CGPoint(x: JKGame.rect.maxX/10, y: JKGame.rect.midY - 200)
+        addChild(nextCardText)
+        
+        if let nextCard = nextCardYouCanPlay {
+            nextCard.removeFromParent()
+        }
         
         if model.roundNum == 6 {
             endRoundAnimations()
@@ -218,7 +228,12 @@ class GameScene: SKScene {
         if let location = touch?.location(in: self) {
             let nodesArray = self.nodes(at: location)
             if let node = nodesArray.first {
-                handleTouch(at: node)
+                if node.name == "TopCard" {
+                    let nextNode = nodesArray[1]
+                    handleTouch(at: nextNode)
+                } else {
+                    handleTouch(at: node)
+                }
             }
         }
         
@@ -317,6 +332,11 @@ class GameScene: SKScene {
             updateOnlineModel()
         }
         newTopCardVisual()
+        nextCardYouCanPlay = SKSpriteNode(imageNamed: model.deck.Cards[1].sprite)
+        let nextCardHeight = model.deck.Cards[1].cardSize.height/3
+        nextCardYouCanPlay!.position = CGPoint(x: JKGame.rect.maxX/10 , y: (JKGame.rect.midY - 220) - nextCardHeight/2)
+        nextCardYouCanPlay!.size = CGSize(width: model.deck.Cards[1].cardSize.width/3, height: nextCardHeight )
+        addChild(nextCardYouCanPlay!)
     }
     func newTopCardModel() {
         model.topCard = model.deck.drawCard()
