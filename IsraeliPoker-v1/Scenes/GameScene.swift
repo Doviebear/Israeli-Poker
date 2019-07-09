@@ -176,6 +176,15 @@ class GameScene: SKScene {
         if let nextCard = nextCardYouCanPlay {
             nextCard.removeFromParent()
         }
+        if let currMatch = match {
+            if !currMatch.isLocalPlayersTurn {
+                nextCardYouCanPlay = SKSpriteNode(imageNamed: model.deck.Cards[1].sprite)
+                let nextCardHeight = model.deck.Cards[1].cardSize.height/3
+                nextCardYouCanPlay!.position = CGPoint(x: JKGame.rect.maxX/10 , y: (JKGame.rect.midY - 220) - nextCardHeight/2)
+                nextCardYouCanPlay!.size = CGSize(width: model.deck.Cards[1].cardSize.width/3, height: nextCardHeight )
+                addChild(nextCardYouCanPlay!)
+            }
+        }
         
         if model.roundNum == 6 {
             endRoundAnimations()
@@ -332,11 +341,13 @@ class GameScene: SKScene {
             updateOnlineModel()
         }
         newTopCardVisual()
-        nextCardYouCanPlay = SKSpriteNode(imageNamed: model.deck.Cards[1].sprite)
-        let nextCardHeight = model.deck.Cards[1].cardSize.height/3
-        nextCardYouCanPlay!.position = CGPoint(x: JKGame.rect.maxX/10 , y: (JKGame.rect.midY - 220) - nextCardHeight/2)
-        nextCardYouCanPlay!.size = CGSize(width: model.deck.Cards[1].cardSize.width/3, height: nextCardHeight )
-        addChild(nextCardYouCanPlay!)
+        if nextCardYouCanPlay == nil {
+            nextCardYouCanPlay = SKSpriteNode(imageNamed: model.deck.Cards[1].sprite)
+            let nextCardHeight = model.deck.Cards[1].cardSize.height/3
+            nextCardYouCanPlay!.position = CGPoint(x: JKGame.rect.maxX/10 , y: (JKGame.rect.midY - 220) - nextCardHeight/2)
+            nextCardYouCanPlay!.size = CGSize(width: model.deck.Cards[1].cardSize.width/3, height: nextCardHeight )
+            addChild(nextCardYouCanPlay!)
+        }
     }
     func newTopCardModel() {
         model.topCard = model.deck.drawCard()
