@@ -114,6 +114,7 @@ final class GameCenterHelper: NSObject {
     
     func win(winner: Int) {
         guard let match = currentMatch else {
+            print("Error")
             return
         }
         // 3
@@ -127,6 +128,7 @@ final class GameCenterHelper: NSObject {
         if let MatchIndex = allCurrentMatches.firstIndex(of: match) {
             allCurrentMatches.remove(at: MatchIndex)
         }
+        print("gameCenter ended game")
     }
 }
 
@@ -174,8 +176,8 @@ extension GameCenterHelper: GKLocalPlayerListener {
             canMove = true
         }
         
-        print("IsLocalPlayersTurn: \(match.isLocalPlayersTurn)")
-        print("When recieveing turn event Match ID is: \(match.matchID)")
+        //print("IsLocalPlayersTurn: \(match.isLocalPlayersTurn)")
+        //print("When recieveing turn event Match ID is: \(match.matchID)")
         if match.isLocalPlayersTurn || canMove{
             NotificationCenter.default.post(name: .presentGame , object: match)
             //print("Presenting Game")

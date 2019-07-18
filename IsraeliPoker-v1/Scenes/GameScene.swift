@@ -24,7 +24,10 @@ class GameScene: SKScene {
     var match: GKTurnBasedMatch?
     var backButton: SKSpriteNode?
     var player: Int?
+    var nextCardText: SKLabelNode?
     var nextCardYouCanPlay: SKSpriteNode?
+    var roundEnded = false
+    var gameEnded = false
     
     
     var playerOneScore: Int! {
@@ -49,10 +52,7 @@ class GameScene: SKScene {
         //z=positions: Cards: 5-9, TopCard: 11
         //Given that GameModel has loaded all the data, I need to display it all
         loadScreen()
-        if gameMode == "online" {
-            NotificationCenter.default.addObserver(self, selector: #selector(reloadScreen(_:)), name: .presentGame, object: nil)
-        }
-        
+        NotificationCenter.default.addObserver(self, selector: #selector(reloadScreen(_:)), name: .presentGame, object: nil)
     }
     
     init(model: GameModel, gameMode: String, match: GKTurnBasedMatch?) {
@@ -73,34 +73,30 @@ class GameScene: SKScene {
     }
     
     @objc func reloadScreen(_ notification: Notification) {
-        if gameMode == "online" {
-            guard let currMatch = notification.object as? GKTurnBasedMatch else {
-                return
-            }
-            match = currMatch
-            currMatch.loadMatchData { data, error in
+
+        guard let currMatch = notification.object as? GKTurnBasedMatch else {
+            return
+        }
+        match = currMatch
+        currMatch.loadMatchData { data, error in
                 
-                if let data = data {
-                    do {
-                        self.model = try JSONDecoder().decode(GameModel.self, from: data)
-                        print("Decoded the new data")
-                        //print("IsLocalPlayersTurn: \(self.match?.isLocalPlayersTurn)")
-                        
-                        self.removeAllSprites()
-                        self.loadScreen()
-                        if self.model.turnNum == 0 {
-                            self.newRoundVisualChanges()
-                        }
-                    } catch {
-                        self.removeAllSprites()
-                        self.loadScreen()
-                        return
-                    }
-                } else {
+            if let data = data {
+                do {
+                    self.model = try JSONDecoder().decode(GameModel.self, from: data)
+                    //print("Decoded the new data")
+                    //print("IsLocalPlayersTurn: \(self.match?.isLocalPlayersTurn)")
+                    
+                    self.removeAllSprites()
+                    self.loadScreen()
+                } catch {
                     self.removeAllSprites()
                     self.loadScreen()
                     return
                 }
+            } else {
+                self.removeAllSprites()
+                self.loadScreen()
+                return
             }
         }
     }
@@ -114,6 +110,7 @@ class GameScene: SKScene {
         playerOneScoreNode?.removeFromParent()
         playerTwoScoreNode?.removeFromParent()
         backButton?.removeFromParent()
+        nextCardText?.removeFromParent()
         
     }
     
@@ -124,9 +121,6 @@ class GameScene: SKScene {
             if currMatch.isLocalPlayersTurn {
                 player = currMatch.participants.firstIndex(of: currMatch.currentParticipant!)! + 1
             }
-        } else {
-            // change player for Local Mode
-            
         }
         
         cardsInPlay = model.CardsInPlay
@@ -153,10 +147,14 @@ class GameScene: SKScene {
         playerOneScore = model.playerOneScore
         playerTwoScore = model.playerTwoScore
         playerOneScoreNode = SKLabelNode(text: "Score: \(playerOneScore!)")
+        playerOneScoreNode?.fontName = "RussoOne-Regular"
+        playerOneScoreNode?.fontSize = 32
         playerOneScoreNode?.position = CGPoint(x: JKGame.rect.maxX - 150, y: JKGame.rect.minY + 150)
         addChild(playerOneScoreNode!)
         
         playerTwoScoreNode = SKLabelNode(text: "Score: \(playerTwoScore!)")
+        playerTwoScoreNode?.fontName = "RussoOne-Regular"
+        playerTwoScoreNode?.fontSize = 32
         playerTwoScoreNode?.position = CGPoint(x: JKGame.rect.maxX - 150, y: JKGame.rect.maxY - 150)
         addChild(playerTwoScoreNode!)
         
@@ -169,24 +167,20 @@ class GameScene: SKScene {
         addChild(backButton!)
         //print("IsLocalPlayersTurn: \(match?.isLocalPlayersTurn)")
         
+        /*
         let nextCardText = SKLabelNode(text: "Next Card")
         nextCardText.position = CGPoint(x: JKGame.rect.maxX/10, y: JKGame.rect.midY - 200)
         addChild(nextCardText)
         
+        
         if let nextCard = nextCardYouCanPlay {
             nextCard.removeFromParent()
         }
-        if let currMatch = match {
-            if !currMatch.isLocalPlayersTurn {
-                nextCardYouCanPlay = SKSpriteNode(imageNamed: model.deck.Cards[1].sprite)
-                let nextCardHeight = model.deck.Cards[1].cardSize.height/3
-                nextCardYouCanPlay!.position = CGPoint(x: JKGame.rect.maxX/10 , y: (JKGame.rect.midY - 220) - nextCardHeight/2)
-                nextCardYouCanPlay!.size = CGSize(width: model.deck.Cards[1].cardSize.width/3, height: nextCardHeight )
-                addChild(nextCardYouCanPlay!)
-            }
-        }
+        */
+        
         
         if model.roundNum == 6 {
+            roundEnded = true
             endRoundAnimations()
         }
         
@@ -210,10 +204,8 @@ class GameScene: SKScene {
     /// Handling Touches
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if gameMode == "online" {
-            guard !isSendingTurn && match?.isLocalPlayersTurn ?? false else {
-                return
-            }
+        guard !isSendingTurn && match?.isLocalPlayersTurn ?? false && !roundEnded else {
+            return
         }
         
         let touch = touches.first
@@ -232,33 +224,42 @@ class GameScene: SKScene {
         //print("is Sending Turn: \(isSendingTurn)")
         //print("Game Center can take turn: \(match?.isLocalPlayersTurn)")
         //print("The current Participant is: \(match?.currentParticipant?.player)")
-        
+        if roundEnded {
+            checkWinner()
+            return
+        }
+        if gameEnded {
+            let scene = MenuScene()
+            
+            // Get the SKScene from the loaded GKScene
+            
+            scene.scaleMode = .aspectFill
+            scene.size = JKGame.size
+            view?.presentScene(scene, transition: SKTransition.push(with: .down, duration: 0.3))
+            return
+        }
         let touch = touches.first
         if let location = touch?.location(in: self) {
             let nodesArray = self.nodes(at: location)
             if let node = nodesArray.first {
-                if node.name == "TopCard" {
-                    let nextNode = nodesArray[1]
-                    handleTouch(at: nextNode)
-                } else {
+                if node.name == "backButton" {
                     handleTouch(at: node)
+                } else {
+                    guard !isSendingTurn && match?.isLocalPlayersTurn ?? false else {
+                        return
+                    }
+                    if node.name == "TopCard" {
+                        let nextNode = nodesArray[1]
+                        handleTouch(at: nextNode)
+                    } else {
+                        handleTouch(at: node)
+                    }
                 }
             }
         }
-        
-        guard !isSendingTurn && match?.isLocalPlayersTurn ?? false else {
-            return
-        }
-        
-        if model.roundNum == 6 {
-            newRoundModelChanges()
-            newRoundVisualChanges()
-            return
-        }
-        
-        // Check for the nodes that were tapped, used to check if any buttons were pressed
-      
     }
+    
+    
     
     func handleTouch(at node: SKNode) {
         // Back Button was pressed
@@ -337,17 +338,18 @@ class GameScene: SKScene {
             roundEnd()
             return
         }
-        if gameMode == "online" {
-            updateOnlineModel()
-        }
+        updateOnlineModel()
+        
         newTopCardVisual()
-        if nextCardYouCanPlay == nil {
-            nextCardYouCanPlay = SKSpriteNode(imageNamed: model.deck.Cards[1].sprite)
-            let nextCardHeight = model.deck.Cards[1].cardSize.height/3
-            nextCardYouCanPlay!.position = CGPoint(x: JKGame.rect.maxX/10 , y: (JKGame.rect.midY - 220) - nextCardHeight/2)
-            nextCardYouCanPlay!.size = CGSize(width: model.deck.Cards[1].cardSize.width/3, height: nextCardHeight )
-            addChild(nextCardYouCanPlay!)
-        }
+        
+        /*
+        nextCardYouCanPlay = SKSpriteNode(imageNamed: model.deck.Cards[1].sprite)
+        let nextCardHeight = model.deck.Cards[1].cardSize.height/3
+        nextCardYouCanPlay!.position = CGPoint(x: JKGame.rect.maxX/10 , y: (JKGame.rect.midY - 220) - nextCardHeight/2)
+        nextCardYouCanPlay!.size = CGSize(width: model.deck.Cards[1].cardSize.width/3, height: nextCardHeight )
+        addChild(nextCardYouCanPlay!)
+        */
+ 
     }
     func newTopCardModel() {
         model.topCard = model.deck.drawCard()
@@ -364,10 +366,10 @@ class GameScene: SKScene {
     
     /// Handles new rounds
     
+    
     func roundEnd() {
         // disable interaction with the screen
-        
-        
+        roundEnded = true
         var results = [Int]()
         for i in 1...5 {
             var hand1 = [Card]()
@@ -401,7 +403,6 @@ class GameScene: SKScene {
             }
         }
        
-        checkForWinner()
         endRoundAnimations()
         updateOnlineModel()
     }
@@ -435,13 +436,9 @@ class GameScene: SKScene {
             count += 1
             if result == 1 {
                 // if player1 won the hand
-                
                 losingHandAnimation(hand: count, player: 2)
-                
             } else if result == 2 {
                 // if player2 won the hand
-                
-               
                 losingHandAnimation(hand: count, player: 1)
             } else if result == 3 {
                 // if they tied
@@ -451,11 +448,12 @@ class GameScene: SKScene {
         }
     }
     
-    func checkForWinner() {
-        if playerOneScore > 11 && playerOneScore > playerTwoScore {
+    
+    func checkWinner() {
+        if playerOneScore >  playerTwoScore {
             // game ends, player one wins
             endGame(winner: 1)
-        } else if playerTwoScore > 11 && playerTwoScore > playerOneScore {
+        } else if playerTwoScore > playerOneScore {
             // game ends, player Two wins
             endGame(winner: 2)
         } else {
@@ -465,6 +463,8 @@ class GameScene: SKScene {
 
     }
     
+    
+    /*
     func newRoundModelChanges() {
        
         model.deck.resetDeck()
@@ -496,7 +496,8 @@ class GameScene: SKScene {
         }
         newTopCardVisual()
     }
-    
+ 
+ */
     func losingHandAnimation(hand: Int, player: Int) {
         let handArray = getHand(Hand: hand, Player: player, model: model)
         let sortedHand = sortHandByCard(hand: handArray)
@@ -546,11 +547,14 @@ class GameScene: SKScene {
         endGameLabel.position = CGPoint(x: JKGame.rect.midX, y: JKGame.rect.midY)
         endGameLabel.zPosition = 1000
         addChild(endGameLabel)
-        if gameMode == "online" {
-            GameCenterHelper.helper.win(winner: winner)
-        }
+        
+        GameCenterHelper.helper.win(winner: winner)
+        gameEnded = true
+        roundEnded = false
     }
 
+    
+        
 }
 
 

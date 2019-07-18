@@ -12,7 +12,7 @@ import GameKit
 struct GameModel: Codable {
     var deck: Deck
     var CardsInPlay: [Card]
-    var roundNum = 2
+    var roundNum = 2 
     var turnNum = 0
     var topCard: Card!
     var playerTurn = 1

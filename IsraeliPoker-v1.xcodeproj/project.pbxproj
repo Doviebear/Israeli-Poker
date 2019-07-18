@@ -15,6 +15,7 @@
 		E85B6F0A22BC10080088979D /* GameCenterHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = E85B6F0922BC10080088979D /* GameCenterHelper.swift */; };
 		E85B6F0D22BC10380088979D /* GameKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E85B6F0C22BC10380088979D /* GameKit.framework */; };
 		E86F2C0822D5255C0069AC1A /* IsraeliPokerLogo2Edited.png in Resources */ = {isa = PBXBuildFile; fileRef = E86F2C0722D5255C0069AC1A /* IsraeliPokerLogo2Edited.png */; };
+		E86F2C0C22D7A5D80069AC1A /* RussoOne-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E86F2C0B22D7A4B10069AC1A /* RussoOne-Regular.ttf */; };
 		E8AEFA1A22BAF30D0072ACD0 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8AEFA1922BAF30D0072ACD0 /* AppDelegate.swift */; };
 		E8AEFA2022BAF30D0072ACD0 /* GameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8AEFA1F22BAF30D0072ACD0 /* GameScene.swift */; };
 		E8AEFA2222BAF30D0072ACD0 /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8AEFA2122BAF30D0072ACD0 /* GameViewController.swift */; };
@@ -51,6 +52,7 @@
 		E85B6F0C22BC10380088979D /* GameKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameKit.framework; path = System/Library/Frameworks/GameKit.framework; sourceTree = SDKROOT; };
 		E85B6F0E22BC103E0088979D /* IsraeliPoker-v1.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "IsraeliPoker-v1.entitlements"; sourceTree = "<group>"; };
 		E86F2C0722D5255C0069AC1A /* IsraeliPokerLogo2Edited.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = IsraeliPokerLogo2Edited.png; sourceTree = "<group>"; };
+		E86F2C0B22D7A4B10069AC1A /* RussoOne-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "RussoOne-Regular.ttf"; sourceTree = "<group>"; };
 		E8AEFA1622BAF30D0072ACD0 /* IsraeliPoker-v1.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "IsraeliPoker-v1.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E8AEFA1922BAF30D0072ACD0 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		E8AEFA1F22BAF30D0072ACD0 /* GameScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameScene.swift; sourceTree = "<group>"; };
@@ -200,6 +202,7 @@
 			children = (
 				E8AEFA3F22BAFF890072ACD0 /* kenvector_future_thin.ttf */,
 				E8AEFA4022BAFF890072ACD0 /* kenvector_future.ttf */,
+				E86F2C0B22D7A4B10069AC1A /* RussoOne-Regular.ttf */,
 			);
 			path = Fonts;
 			sourceTree = "<group>";
@@ -277,6 +280,7 @@
 				E8AEFA2522BAF30D0072ACD0 /* Main.storyboard in Resources */,
 				E8EF085E22CBB326005A14AF /* awsconfiguration.json in Resources */,
 				E8AEFA2722BAF3100072ACD0 /* Assets.xcassets in Resources */,
+				E86F2C0C22D7A5D80069AC1A /* RussoOne-Regular.ttf in Resources */,
 				E8AEFA2A22BAF3100072ACD0 /* LaunchScreen.storyboard in Resources */,
 				E8AEFA4322BB01350072ACD0 /* kenvector_future.ttf in Resources */,
 			);

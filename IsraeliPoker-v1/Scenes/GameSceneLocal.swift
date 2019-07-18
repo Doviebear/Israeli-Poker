@@ -24,6 +24,8 @@ class GameSceneLocal: SKScene {
     var match: GKTurnBasedMatch?
     var backButton: SKSpriteNode?
     var player: Int?
+    var roundEnd = false
+    var gameEnd = false
     
     var playerOneScore: Int! {
         didSet {
@@ -106,10 +108,14 @@ class GameSceneLocal: SKScene {
         playerOneScore = model.playerOneScore
         playerTwoScore = model.playerTwoScore
         playerOneScoreNode = SKLabelNode(text: "Score: \(playerOneScore!)")
+        playerOneScoreNode?.fontName = "RussoOne-Regular"
+        playerOneScoreNode?.fontSize = 32
         playerOneScoreNode?.position = CGPoint(x: JKGame.rect.minX + 100, y: JKGame.rect.minY + 150)
         addChild(playerOneScoreNode!)
         
         playerTwoScoreNode = SKLabelNode(text: "Score: \(playerTwoScore!)")
+        playerTwoScoreNode?.fontName = "RussoOne-Regular"
+        playerTwoScoreNode?.fontSize = 32
         playerTwoScoreNode?.position = CGPoint(x: JKGame.rect.minX + 100, y: JKGame.rect.maxY - 150)
         addChild(playerTwoScoreNode!)
         
@@ -121,16 +127,15 @@ class GameSceneLocal: SKScene {
         backButton!.name = "backButton"
         addChild(backButton!)
         //print("IsLocalPlayersTurn: \(match?.isLocalPlayersTurn)")
-        
-        if model.roundNum == 6 {
-            endRoundAnimations()
-        }
-        
+    
     }
     
     /// Handling Touches
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard !roundEnd else {
+            return
+        }
         
         let touch = touches.first
         if let location = touch?.location(in: self) {
@@ -145,9 +150,18 @@ class GameSceneLocal: SKScene {
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         // Check if round is over, if yes then start and new round and exit the function, else contiune
-        if model.roundNum == 6 {
-            newRoundModelChanges()
-            newRoundVisualChanges()
+        if roundEnd {
+            checkWinner()
+            return
+        }
+        if gameEnd {
+            let scene = MenuScene()
+            
+            // Get the SKScene from the loaded GKScene
+            
+            scene.scaleMode = .aspectFill
+            scene.size = JKGame.size
+            view?.presentScene(scene, transition: SKTransition.push(with: .down, duration: 0.3))
             return
         }
         
@@ -240,7 +254,7 @@ class GameSceneLocal: SKScene {
             model.roundNum += 1
         }
         if model.roundNum == 6 {
-            roundEnd()
+            endOfRound()
             return
         }
         
@@ -263,9 +277,9 @@ class GameSceneLocal: SKScene {
     
     /// Handles new rounds
     
-    func roundEnd() {
+    func endOfRound() {
         // disable interaction with the screen
-        
+        roundEnd = true
         
         var results = [Int]()
         for i in 1...5 {
@@ -300,7 +314,6 @@ class GameSceneLocal: SKScene {
             }
         }
         endRoundAnimations()
-        checkForWinner()
     }
     
     func endRoundAnimations() {
@@ -348,11 +361,11 @@ class GameSceneLocal: SKScene {
         }
     }
     
-    func checkForWinner() {
-        if playerOneScore > 11 && playerOneScore > playerTwoScore {
+    func checkWinner() {
+        if playerOneScore >  playerTwoScore {
             // game ends, player one wins
             endGame(winner: 1)
-        } else if playerTwoScore > 11 && playerTwoScore > playerOneScore {
+        } else if playerTwoScore  > playerOneScore {
             // game ends, player Two wins
             endGame(winner: 2)
         } else {
@@ -362,6 +375,7 @@ class GameSceneLocal: SKScene {
         
     }
     
+    /*
     func newRoundModelChanges() {
         
         model.deck.resetDeck()
@@ -392,7 +406,7 @@ class GameSceneLocal: SKScene {
         }
         newTopCardVisual()
     }
-    
+    */
     func losingHandAnimation(hand: Int, player: Int) {
         let handArray = getHand(Hand: hand, Player: player, model: model)
         let sortedHand = sortHandByCard(hand: handArray)
@@ -436,12 +450,16 @@ class GameSceneLocal: SKScene {
             sprite.removeFromParent()
         }
         topCardSprite.removeFromParent()
+        
         let endGameLabel = SKLabelNode(text: "Player \(winner) Won!")
         endGameLabel.fontSize = 244
         endGameLabel.verticalAlignmentMode = .center
         endGameLabel.position = CGPoint(x: JKGame.rect.midX, y: JKGame.rect.midY)
         endGameLabel.zPosition = 1000
         addChild(endGameLabel)
+        
+        roundEnd = false
+        gameEnd = true
     }
     
     
