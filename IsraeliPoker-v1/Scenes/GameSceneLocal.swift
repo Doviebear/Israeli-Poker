@@ -279,6 +279,7 @@ class GameSceneLocal: SKScene {
     
     func endOfRound() {
         // disable interaction with the screen
+        topCardSprite.removeFromParent()
         roundEnd = true
         
         var results = [Int]()

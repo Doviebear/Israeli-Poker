@@ -407,6 +407,7 @@ class GameScene: SKScene {
         updateOnlineModel()
     }
     func endRoundAnimations() {
+        topCardSprite.removeFromParent()
         var count = 0
         for pair in spritesInPlay {
             let card = pair[0] as! Card
